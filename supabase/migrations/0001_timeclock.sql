@@ -1,4 +1,4 @@
--- RELI Ops — Time Clock
+-- RELI CRM — Time Clock
 -- ---------------------------------------------------------------------------
 -- Design notes:
 --   * A web app cannot collect background GPS. It doesn't need to. Location is

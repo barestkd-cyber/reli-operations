@@ -1,4 +1,4 @@
-// RELI Ops — "Find Businesses" (Outreach tab) server-side proxy
+// RELI CRM — "Find Businesses" (Outreach tab) server-side proxy
 // ---------------------------------------------------------------------------
 // The CRM runs entirely in the browser, so it CANNOT hold an Anthropic API key.
 // This Edge Function is the server side of that call: the key lives here as a

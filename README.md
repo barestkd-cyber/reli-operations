@@ -1,8 +1,8 @@
-# RELI Ops — CRM
+# RELI CRM
 
 Internal operations CRM for RELI Commercial Cleaning. Ported from the 4K Cleaning ops app and rebranded to RELI colors.
 
-**This is a private internal tool. It is deliberately NOT part of `reli-site/` and is not published to the public GitHub Pages preview.**
+**Internal tool.** Published at <https://barestkd-cyber.github.io/reli-operations/> (`noindex`, robots-disallowed). The URL is public; the data is protected by Supabase Auth + RLS. Deliberately separate from the public marketing site and from the cleaner-facing time clock.
 
 ## Files
 | File | Purpose |
@@ -34,7 +34,7 @@ The public site's contact form (`reli-site/assets/js/main.js`) inserts into the 
 ## What was changed from the 4K original
 - **Colors:** teal → RELI gold `#E3BA35`; secondary lavender → neutral slate; amber shifted to `#E8833A` so it doesn't collide with gold; backgrounds moved to RELI's neutral charcoal.
 - **Fonts:** DM Sans → **Poppins** (Bebas Neue display kept — RELI already uses it).
-- **Branding:** "4K OPS" → "RELI OPS", titles, schedule exports, contract letterhead.
+- **Branding:** "4K OPS" → "RELI CRM", titles, schedule exports, contract letterhead.
 - **Credentials:** 4K's Supabase URL + publishable key **removed**, replaced with placeholders.
 - **localStorage** namespaces `4k_v2_*` → `reli_v2_*` so the two apps never share cached data in one browser.
 - **Contract letterhead** logo now uses the local RELI logo (was a remote 4K GitHub URL).
@@ -56,13 +56,13 @@ Until both the Supabase credentials **and** this function are deployed, the Find
 
 ## Time Clock (replacing Connecteam)
 
-Cleaners open `timeclock/index.html` on their phone, sign in, pick their job site, and hit one big button. Location is stamped **at clock-in and clock-out** — not during the shift.
+The **cleaner-facing page lives in its own repo** — [reli-timeclock](https://github.com/barestkd-cyber/reli-timeclock) — so the crew never holds a link to client data. Its backend lives here. Location is stamped **at clock-in and clock-out** — not during the shift.
 
 | Piece | File |
 |---|---|
 | Schema, RLS, auto-close rules | `supabase/migrations/0001_timeclock.sql` |
 | Punch endpoint (server-side geofence) | `supabase/functions/clock/index.ts` |
-| Cleaner-facing page | `timeclock/index.html` |
+| Cleaner-facing page | in the `reli-timeclock` repo |
 
 **Setup:**
 ```bash

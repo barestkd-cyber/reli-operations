@@ -1,4 +1,4 @@
-// RELI Ops — Time Clock punch endpoint
+// RELI CRM — Time Clock punch endpoint
 // ---------------------------------------------------------------------------
 // POST { action: "in" | "out" | "status", site_id?, lat?, lng?, accuracy_m? }
 //
