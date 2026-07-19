@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>RELI Commercial Cleaning — Contract Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon.ico">
+<style>
+/* ── APP SHELL ── */
+:root{
+  --gold:#E3BA35;--gold-dark:#C99E1F;
+  --charcoal:#1F2124;--charcoal-mid:#2A2D31;
+  --surface:#26292E;--surface-hover:#32363C;
+  --border:rgba(255,255,255,0.08);--border-gold:rgba(227,186,53,0.3);
+  --text:#e8edf2;--text-muted:#7a8899;--text-dim:#4a5568;
+  --green:#22c55e;--red:#ef4444;--amber:#E8833A;
+  --radius:10px;--radius-sm:6px;
+  --font-display:'Bebas Neue',sans-serif;--font:'Poppins',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-height:100vh;font-size:0.95rem;}
+.topbar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;height:52px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.05em;color:white;}
+.topbar-logo span{color:var(--gold);}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;border-radius:var(--radius-sm);font-family:var(--font);font-weight:600;font-size:0.85rem;border:1px solid transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.btn-primary{background:var(--gold);color:white;}
+.btn-primary:hover{background:var(--gold-dark);}
+.btn-ghost{background:transparent;color:var(--text-muted);border-color:var(--border);}
+.btn-ghost:hover{background:var(--surface-hover);color:var(--text);}
+.btn-sm{padding:0.32rem 0.7rem;font-size:0.78rem;}
+.app-body{display:flex;flex-direction:column;min-height:calc(100vh - 52px);}
+@media(min-width:900px){.app-body{display:grid;grid-template-columns:420px 1fr;flex-direction:unset;}}
+.mobile-tabs{display:none;}
+
+/* ── EDITOR PANEL ── */
+.editor-panel{background:var(--charcoal-mid);border-right:1px solid var(--border);padding:1.25rem;overflow-y:auto;max-height:calc(100vh - 52px);}
+@media(max-width:899px){.editor-panel{max-height:none;border-right:none;border-bottom:1px solid var(--border);}}
+.editor-panel::-webkit-scrollbar{width:4px;}
+.editor-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:50px;}
+.section-hdr{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-dim);padding-bottom:0.4rem;border-bottom:1px solid var(--border);margin:1rem 0 0.75rem;}
+.section-hdr:first-child{margin-top:0;}
+.fg{margin-bottom:0.7rem;}
+.fg label{display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.3rem;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:0.88rem;padding:0.55rem 0.75rem;transition:border-color 0.15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--gold);}
+.fg select option{background:var(--charcoal-mid);}
+.fg textarea{min-height:120px;resize:vertical;line-height:1.6;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;}
+.task-note{font-size:0.72rem;color:var(--text-dim);margin-top:0.25rem;font-style:italic;}
+.status-bar{background:var(--surface);border:1px solid var(--border-gold);border-radius:var(--radius-sm);padding:0.65rem 0.9rem;font-size:0.8rem;color:var(--text-muted);display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.status-dot.pending{background:var(--amber);}
+.action-row{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;}
+
+/* ── PREVIEW PANEL ── */
+.preview-panel{background:#e8e8e0;overflow-y:auto;max-height:calc(100vh - 52px);padding:0.75rem 0;}
+.preview-panel::-webkit-scrollbar{width:4px;}
+.preview-panel::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:50px;}
+.preview-wrap{max-width:680px;margin:0 auto;padding:0 0.5rem;}
+
+/* ── CONTRACT (print styles embedded) ── */
+.contract{background:white;padding:1.75rem 2.25rem 2rem;font-family:'Lora',Georgia,serif;font-size:10pt;line-height:1.55;color:#1a1a1a;box-shadow:0 4px 40px rgba(0,0,0,0.18);position:relative;}
+.contract-header{text-align:center;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:2px solid #1a1a1a;}
+.contract-logo{height:70px;width:auto;margin:0 auto 0.35rem;display:block;}
+.contract-co-name{font-family:'Bebas Neue',sans-serif;font-size:20pt;letter-spacing:0.06em;color:var(--gold);margin-bottom:0.1rem;}
+.contract-tagline{font-family:'Poppins',sans-serif;font-size:8pt;color:#555;margin-bottom:0.75rem;line-height:1.4;}
+.contract-divider{height:1px;background:#ddd;margin:0.5rem auto 0.75rem;width:80%;}
+.contract-client{font-family:'Bebas Neue',sans-serif;font-size:18pt;letter-spacing:0.04em;color:#1a1a1a;margin-bottom:0.1rem;}
+.contract-subtitle{font-family:'Poppins',sans-serif;font-size:9pt;font-weight:700;color:#1a1a1a;letter-spacing:0.05em;text-transform:uppercase;}
+.contract-article{margin-bottom:1rem;}
+.contract-article-title{font-family:'Poppins',sans-serif;font-size:10pt;font-weight:700;color:#1a1a1a;margin-bottom:0.25rem;}
+.contract-article-subtitle{font-family:'Poppins',sans-serif;font-size:9pt;font-weight:600;color:#1a1a1a;text-decoration:underline;margin-bottom:0.4rem;}
+.contract-task-list{margin:0.3rem 0 0.55rem;padding:0;list-style:none;}
+.contract-task-list li{padding:0.08rem 0 0.08rem 1rem;position:relative;font-size:10pt;line-height:1.5;}
+.contract-task-list li::before{content:'—';position:absolute;left:0;color:#1a1a1a;}
+.contract-supplies{font-size:10pt;margin:0.55rem 0 0.3rem;}
+.contract-exclusion{font-size:10pt;margin:0.3rem 0;}
+.contract-para{font-size:10pt;margin-bottom:0.55rem;line-height:1.6;}
+.contract-sig-block{margin-top:1.25rem;padding-top:1rem;border-top:1px solid #ccc;page-break-inside:avoid;}
+.contract-sig-row{display:flex;gap:1.5rem;margin-bottom:1rem;align-items:flex-end;}
+.contract-sig-field{flex:1;}
+.contract-sig-label{font-family:'Poppins',sans-serif;font-size:9pt;color:#1a1a1a;margin-bottom:0.3rem;}
+.contract-sig-line{border-bottom:1px solid #1a1a1a;min-height:28px;margin-bottom:0.2rem;display:flex;align-items:flex-end;padding-bottom:2px;}
+.contract-sig-name{font-family:'Poppins',sans-serif;font-size:8pt;color:#555;}
+.contract-sig-canvas{border:none;border-bottom:2px solid #1a1a1a;width:100%;height:70px;cursor:crosshair;display:block;touch-action:none;background:transparent;}
+.contract-sig-canvas.signed{border-color:#E3BA35;}
+.sig-placed{width:100%;height:56px;object-fit:contain;object-position:left bottom;display:block;border-bottom:2px solid #E3BA35;}
+.sig-line-empty{border-bottom:2px solid #1a1a1a;height:56px;width:100%;display:flex;align-items:flex-end;padding-bottom:4px;}
+.sig-open-btn{font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:700;padding:0.28rem 0.7rem;border-radius:20px;cursor:pointer;border:1px solid #E3BA35;background:white;color:#E3BA35;transition:all 0.15s;margin-top:0.3rem;display:inline-block;}
+.sig-open-btn:hover{background:#E3BA35;color:white;}
+.sig-open-btn.signed{border-color:#22c55e;color:#22c55e;}
+.sig-open-btn.signed:hover{background:#22c55e;color:white;}
+.contract-effective{font-family:'Poppins',sans-serif;font-size:8.5pt;color:#333;margin-top:0.4rem;line-height:1.55;}
+/* FULLSCREEN SIG MODAL */
+.sig-modal{position:fixed;inset:0;background:#111;z-index:900;display:none;flex-direction:column;}
+.sig-modal.open{display:flex;}
+.sig-modal-header{padding:0.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;background:#1a1a1a;flex-shrink:0;}
+.sig-modal-title{font-family:'Poppins',sans-serif;font-size:0.95rem;font-weight:700;color:white;}
+.sig-modal-actions{display:flex;gap:0.5rem;}
+.sig-modal-btn{font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:700;padding:0.45rem 1rem;border-radius:6px;cursor:pointer;border:none;transition:all 0.15s;}
+.sig-modal-btn.clear{background:#333;color:#aaa;}
+.sig-modal-btn.done{background:#E3BA35;color:white;}
+.sig-modal-canvas-wrap{flex:1;display:flex;flex-direction:column;position:relative;}
+.sig-modal-hint{text-align:center;font-family:'Poppins',sans-serif;font-size:0.75rem;color:#666;padding:0.6rem;flex-shrink:0;}
+.sig-modal-canvas{flex:1;width:100%;display:block;touch-action:none;cursor:crosshair;}
+.sig-modal-line{position:absolute;left:5%;right:5%;bottom:25%;height:1px;background:#333;pointer-events:none;}
+
+/* ── SEND MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--charcoal-mid);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:50px;margin:0.75rem auto 0;}
+.modal-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:var(--font-display);font-size:1.2rem;letter-spacing:0.04em;color:white;}
+.modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;padding:0.25rem;line-height:1;}
+.modal-body{padding:1.25rem;}
+.modal-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:0.5rem;justify-content:flex-end;}
+@media(min-width:768px){.modal-overlay{align-items:center;}.modal{border-radius:var(--radius);}.modal-handle{display:none;}}
+@media(min-width:900px){.preview-panel{padding:2rem 1.5rem;}}
+
+@media print{
+  .topbar,.editor-panel,.preview-panel > *:not(.preview-wrap){display:none!important;}
+  .preview-panel{padding:0;background:white;max-height:none;overflow:visible;}
+  .preview-wrap{max-width:100%;}
+  .contract{box-shadow:none;padding:1.25rem 1.75rem 1.25rem;font-size:9.5pt;}
+  .contract-logo{height:60px;}
+  .contract-co-name{font-size:17pt;}
+  .contract-client{font-size:15pt;}
+  .sig-open-btn,.sig-modal{display:none!important;}
+  .contract-sig-block{page-break-inside:avoid;}
+  body{background:white;}
+  @page{margin:0.6in 0.65in;size:letter portrait;}
+}
+.sig-contract-btn-wrap{margin-top:0.3rem;display:flex;gap:0.35rem;}
+.sig-contract-btn{font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:700;padding:0.22rem 0.65rem;border-radius:20px;cursor:pointer;border:1px solid #E3BA35;background:white;color:#E3BA35;transition:all 0.15s;}
+.sig-contract-btn:hover{background:#E3BA35;color:white;}
+.sig-contract-clear{border-color:#ef4444;color:#ef4444;}
+.sig-contract-clear:hover{background:#ef4444;color:white;}
+/* hide sig buttons in saved/print mode */
+.mode-saved .sig-contract-btn-wrap,
+.mode-saved .sig-contract-btn{display:none!important;}
+@media print{.sig-contract-btn-wrap,.sig-contract-btn{display:none!important;}}
+.contract-footer{display:none;}
+@media print{
+  .contract-footer{display:flex!important;align-items:center;justify-content:space-between;border-top:1px solid #ddd;padding-top:0.35rem;margin-top:0.5rem;font-family:'Poppins',sans-serif;font-size:7.5pt;color:#888;}
+  .cf-logo{font-family:'Bebas Neue',sans-serif;font-size:10pt;letter-spacing:0.06em;color:#E3BA35;}
+  .cf-mid{text-align:center;font-weight:700;color:#333;}
+  .cf-right{text-align:right;}
+}
+/* SAVED */
+.contracts-list{display:flex;flex-direction:column;gap:0.4rem;max-height:320px;overflow-y:auto;}
+.csr{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.6rem 0.85rem;display:flex;align-items:center;gap:0.7rem;cursor:pointer;transition:all 0.15s;}
+.csr:hover{background:var(--surface-hover);}
+.csr-num{font-family:var(--font-display);font-size:1rem;color:var(--gold);flex-shrink:0;min-width:90px;}
+.csr-body{flex:1;min-width:0;}
+.csr-name{font-weight:600;font-size:0.86rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.csr-date{font-size:0.7rem;color:var(--text-muted);}
+.csr-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:0.1rem 0.3rem;flex-shrink:0;}
+.csr-del:hover{color:var(--red);}
+</style>
+</head>
+<body>
+<div style="background:#E8833A;color:#1F2124;font:600 13px/1.5 Poppins,sans-serif;padding:10px 16px;text-align:center">
+  ⚠ Draft — legal terms, scope and pricing in this generator were inherited from the 4K template and have <u>not</u> been reviewed for RELI. Have RELI review before issuing to any client.
+</div>
+
+<div class="topbar">
+  <div class="topbar-logo"><span>RELI</span> CONTRACT GENERATOR</div>
+  <div style="display:flex;gap:0.45rem;">
+    <button class="btn btn-ghost btn-sm" onclick="openSavedModal()">📂 Saved</button>
+    <button class="btn btn-ghost btn-sm" onclick="newContract()">+ New</button>
+  </div>
+</div>
+
+<div class="mobile-tabs" id="mobile-tabs">
+  <button class="active" onclick="mobileSwitchTab('preview',this)">Preview</button>
+  <button onclick="mobileSwitchTab('editor',this)">Edit</button>
+</div>
+
+<div class="app-body">
+
+  <!-- EDITOR -->
+  <div class="editor-panel" id="editor-panel">
+    <div class="status-bar" id="status-bar">
+      <span class="status-dot pending" id="status-dot"></span>
+      <span id="status-text">Fill in the details to generate the contract</span>
+    </div>
+
+    <div class="section-hdr">Client Info</div>
+    <div class="fg"><label>Business Name *</label><input type="text" id="e-biz" placeholder="Client Business Name" oninput="onEditField()"></div>
+    <div class="fg"><label>City, State</label><input type="text" id="e-city" value="Tyler, Texas" oninput="onEditField()"></div>
+    <div class="fg"><label>Client Representative Name</label><input type="text" id="e-rep" placeholder="John Smith" oninput="onEditField()"></div>
+    <div class="fg"><label>Client Email</label><input type="email" id="e-email" placeholder="client@business.com" oninput="onEditField()"></div>
+
+    <div class="section-hdr">Service Details</div>
+    <div class="fg"><label>Service Type</label>
+      <select id="e-service" onchange="loadDefaultsAndEdit()">
+        <option value="">Select...</option>
+        <option value="office">Office Cleaning</option>
+        <option value="bank">Bank &amp; Financial Institution Cleaning</option>
+        <option value="retail">Retail Store Cleaning</option>
+        <option value="healthcare">Healthcare &amp; Medical Facility Cleaning</option>
+        <option value="dealership">Auto Dealership Cleaning</option>
+        <option value="education">Education &amp; School Cleaning</option>
+        <option value="custom">Custom / Other</option>
+      </select>
+    </div>
+    <div class="fg"><label>Frequency Label <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-dim);">(e.g. Bi Weekly, Weekly)</span></label>
+      <input type="text" id="e-freq" placeholder="Bi Weekly" oninput="onEditField()">
+    </div>
+    <div class="fg"><label>Cleaning Days / Schedule <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-dim);">(e.g. Tuesdays & Wednesdays)</span></label>
+      <input type="text" id="e-schedule" placeholder="Tuesday &amp; Wednesday" oninput="onEditField()">
+    </div>
+
+    <div class="section-hdr">Task List — Article I <button class="btn btn-ghost btn-sm" style="float:right;margin-top:-2px;" onclick="addTask()">+ Task</button></div>
+    <div class="fg">
+      <div id="task-list"></div>
+      <div class="task-note">One task per line. Edit or delete as needed.</div>
+    </div>
+    <div class="fg"><label>Supplies Note</label>
+      <input type="text" id="e-supplies" value="Cleaning supplies other than paper towels, soap and toilet paper will be provided by RELI Commercial Cleaning" oninput="onEditField()">
+    </div>
+    <div class="fg"><label>Exclusions Note</label>
+      <input type="text" id="e-exclusions" value="Cleaning does not include offices &amp; non-public areas of business." oninput="onEditField()">
+    </div>
+
+    <div class="section-hdr">Pricing — Article II</div>
+    <div class="form-row">
+      <div class="fg"><label>Monthly Rate ($)</label><input type="number" id="e-rate" min="0" step="0.01" placeholder="150.00" oninput="calcTax()"></div>
+      <div class="fg"><label>Tax Rate (%)</label><input type="number" id="e-taxrate" value="8.25" min="0" step="0.01" oninput="calcTax()"></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Tax Amount ($)</label><input type="number" id="e-tax" min="0" step="0.01" placeholder="12.38" oninput="onEditField()"></div>
+      <div class="fg"><label>Total Due ($)</label><input type="number" id="e-total" min="0" step="0.01" placeholder="162.38" oninput="onEditField()"></div>
+    </div>
+    <div class="fg"><label>Due By</label><input type="text" id="e-due" value="the 5th of every month" oninput="onEditField()"></div>
+
+    <div class="section-hdr">Dates</div>
+    <div class="form-row">
+      <div class="fg"><label>Contract Date</label><input type="date" id="e-date" oninput="onEditField()"></div>
+      <div class="fg"><label>Effective Start Date</label><input type="date" id="e-start" oninput="onEditField()"></div>
+    </div>
+
+    <div class="section-hdr">Contract Number</div>
+    <div class="fg"><label>Contract #</label>
+      <div style="display:flex;gap:0.45rem;align-items:center;">
+        <input type="text" id="e-contract-num" placeholder="RELI-2026-0001" style="flex:1;" oninput="onEditField()">
+        <button class="btn btn-ghost btn-sm" onclick="genContractNum()">Generate</button>
+      </div>
+    </div>
+
+    <div class="section-hdr">RELI Representative</div>
+    <div class="fg"><label>Your Name</label><input type="text" id="e-4krep" placeholder="Your name" oninput="onEditField()"></div>
+
+    <div class="section-hdr">Review</div>
+    <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">Review the preview on the right, then choose how to proceed.</div>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:0.75rem;" onclick="goToSignMode()">✍ Finish &amp; Sign →</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;padding:0.65rem;" onclick="goToSendFlow()">📧 Send to Client for Signature →</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-panel" id="preview-panel">
+    <!-- SIGN MODE BAR (shown during sign mode) -->
+    <div id="sign-bar" style="display:none;background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.6rem 1rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button class="btn btn-ghost btn-sm" onclick="goToEditMode()">← Edit</button>
+        <span id="sign-bar-hint" style="font-size:0.75rem;color:var(--text-muted);">Sign on the contract below — client first, then you.</span>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btn-save" onclick="saveContract()" disabled style="opacity:0.45;">💾 Save</button>
+    </div>
+    <!-- SEND FLOW OVERLAY (shown when Send to Client chosen) -->
+    <div id="sign-send" style="display:none;background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:1rem;position:sticky;top:0;z-index:50;max-height:55vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.85rem;">
+        <button class="btn btn-ghost btn-sm" onclick="goToEditMode()">← Edit</button>
+        <span style="font-family:var(--font-display);font-size:1rem;letter-spacing:0.04em;color:var(--white);">Send to Client for Signature</span>
+      </div>
+      <div class="fg"><label style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);display:block;margin-bottom:0.3rem;">Client Email</label>
+        <input type="email" id="send-client-email" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:0.88rem;padding:0.52rem 0.75rem;width:100%;" placeholder="client@business.com">
+      </div>
+      <div style="background:var(--surface);border:1px solid rgba(232,131,58,0.3);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;font-size:0.76rem;color:var(--text-muted);line-height:1.65;">
+        <div style="color:var(--amber);font-weight:700;margin-bottom:0.3rem;">⚠ Requires Supabase — Coming Next</div>
+        Will save as <strong style="color:var(--amber);">Pending</strong>, email client a signing link, notify you at relicommercialcleaning@gmail.com when they sign, then you countersign to finalize.
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;opacity:0.5;cursor:not-allowed;" disabled>📧 Send Signing Link</button>
+    </div>
+    <!-- SAVED / VIEW-ONLY BAR -->
+    <div id="view-only-bar" style="display:none;background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.6rem 1rem;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span style="font-size:0.8rem;font-weight:700;color:var(--green);">🔒 Signed Contract</span>
+        <span id="view-only-num" style="font-size:0.75rem;color:var(--text-muted);"></span>
+      </div>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="btn btn-ghost btn-sm" onclick="newContract()">+ New</button>
+        <button class="btn btn-ghost btn-sm" onclick="openSavedModal()">📂 Saved</button>
+        <button class="btn btn-ghost btn-sm" onclick="openSendModal()">📧 Send</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Print</button>
+      </div>
+    </div>
+    <div class="preview-wrap">
+      <div class="contract" id="contract-preview"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FULLSCREEN SIGN MODAL -->
+<div class="sig-modal" id="sig-modal">
+  <div class="sig-modal-header">
+    <div class="sig-modal-title" id="sig-modal-title">Sign Here</div>
+    <div class="sig-modal-actions">
+      <button class="sig-modal-btn clear" onclick="sigModalClear()">Clear</button>
+      <button class="sig-modal-btn done" onclick="sigModalDone()">Place Signature</button>
+    </div>
+  </div>
+  <div class="sig-modal-canvas-wrap">
+    <div class="sig-modal-hint">Sign above the line with your finger</div>
+    <canvas class="sig-modal-canvas" id="sig-modal-canvas"></canvas>
+    <div class="sig-modal-line"></div>
+  </div>
+</div>
+
+<!-- SAVED CONTRACTS MODAL -->
+<div class="modal-overlay" id="saved-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Saved Contracts</div><button class="modal-close" onclick="closeSavedModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="contracts-list" id="contracts-list"></div>
+      <div id="contracts-empty" style="display:none;text-align:center;padding:2rem;color:var(--text-dim);font-size:0.83rem;font-style:italic;">No saved contracts yet.</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeSavedModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- SEND MODAL -->
+<div class="modal-overlay" id="send-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Send to Client</div><button class="modal-close" onclick="closeSendModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>Client Email</label><input type="email" id="send-email" placeholder="client@business.com"></div>
+      <div class="fg"><label>Message (optional)</label><textarea id="send-msg" style="min-height:80px;" placeholder="Hi [name], please find your service agreement attached. Review and sign at your convenience."></textarea></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem;font-size:0.8rem;color:var(--text-muted);line-height:1.65;margin-top:0.5rem;">
+        <strong style="color:var(--text);display:block;margin-bottom:0.3rem;">How it works</strong>
+        This generates a unique signing link and emails it to the client. They open it, review the contract, and sign. Once they sign, you get an email notification with a copy of the signed contract. Then you countersign and it's executed.
+        <br><br>
+        <strong style="color:var(--amber);">⚠ Requires Supabase + Resend setup</strong> — coming next. For now use Print / Save PDF and email manually.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSendModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="sendContract()">Send Link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOGO_URL='assets/reli-logo.png';
+const TAX_RATE=8.25;
+
+// Default task lists per service type
+const TASK_DEFAULTS={
+  office:[
+    'Dust and wipe all desks, surfaces, and workstations',
+    'Empty all trash receptacles and replace liners',
+    'Vacuum all carpeted areas and rugs',
+    'Sweep and mop all hard floor surfaces',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'Refill soap dispensers and paper towels in restrooms',
+    'Clean interior glass, windows, and doors',
+    'Wipe down common area furniture and surfaces',
+    'Clean and sanitize kitchen/break room surfaces',
+    'Spot clean walls and light switches as needed'
+  ],
+  bank:[
+    'Clean and sanitize teller stations and counters',
+    'Vacuum and detail lobby and customer waiting areas',
+    'Clean interior glass, entry doors, and partitions',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'Refill soap dispensers and paper towels in restrooms',
+    'Dust and wipe all offices and workstations',
+    'High-touch disinfection of counters, pens, and PIN pads',
+    'Sweep, mop, and maintain all hard floor surfaces',
+    'Empty all trash receptacles and replace liners',
+    'Spot clean walls and light switches as needed'
+  ],
+  retail:[
+    'Sweep, mop, and maintain all sales-floor surfaces',
+    'Vacuum all carpeted areas and entry mats',
+    'Clean entry doors, windows, and display glass',
+    'Clean and sanitize fitting rooms',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'High-touch disinfection of carts, counters, and door handles',
+    'Clean and sanitize checkout and POS areas',
+    'Tidy and clean stock room and back-of-house areas',
+    'Empty all trash receptacles and replace liners',
+    'Spot clean walls and light switches as needed'
+  ],
+  healthcare:[
+    'Disinfect exam and treatment rooms with hospital-grade disinfectant',
+    'Clean and sanitize waiting and reception areas',
+    'High-touch and shared-equipment disinfection',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'Refill soap dispensers and paper towels in restrooms',
+    'Floor care and mopping per infection-control protocols',
+    'Empty general waste receptacles and replace liners',
+    'Clean interior glass, windows, and doors',
+    'Damp-wipe all horizontal surfaces and fixtures',
+    'Complete infection-control quality checks each visit'
+  ],
+  dealership:[
+    'Clean and polish showroom floors',
+    'Clean showroom glass, entry doors, and display windows',
+    'Clean and sanitize customer lounge and waiting areas',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'Refill soap dispensers and paper towels in restrooms',
+    'Dust and wipe sales and finance offices',
+    'Clean service-department common areas',
+    'High-touch disinfection of counters, handles, and shared surfaces',
+    'Empty all trash receptacles and replace liners',
+    'Spot clean walls and light switches as needed'
+  ],
+  education:[
+    'Clean and sanitize classrooms, desks, and shared surfaces',
+    'Clean cafeteria and common areas',
+    'High-touch disinfection of desks, door handles, and handrails',
+    'Clean and sanitize restrooms including sinks, toilets, and mirrors',
+    'Refill soap dispensers and paper towels in restrooms',
+    'Vacuum all carpeted areas and entry mats',
+    'Sweep, mop, and maintain gym and hallway floors',
+    'Clean interior glass, windows, and entrance doors',
+    'Empty all trash receptacles and replace liners',
+    'Spot clean walls and light switches as needed'
+  ],
+  custom:[
+    'Enter cleaning tasks here'
+  ]
+};
+
+let tasks=[];
+
+// ── TASK MANAGEMENT ──
+function renderTaskList(){
+  const container=document.getElementById('task-list');
+  container.innerHTML=tasks.map((t,i)=>
+    '<div style="display:flex;gap:0.4rem;margin-bottom:0.35rem;align-items:flex-start;">'+
+    '<input type="text" value="'+escHtml(t)+'" oninput="tasks['+i+']=this.value;onEditField()" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:0.82rem;padding:0.42rem 0.65rem;">'+
+    '<button onclick="removeTask('+i+')" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-dim);cursor:pointer;padding:0.35rem 0.5rem;font-size:0.78rem;flex-shrink:0;transition:all 0.15s;" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'var(--text-dim)\'">✕</button>'+
+    '</div>'
+  ).join('');
+  updatePreview();
+}
+function addTask(){
+  if(sigData.client||sigData.fourk){sigData.client=null;sigData.fourk=null;showSigWipeWarning();}
+  tasks.push('');renderTaskList();setTimeout(()=>{const inputs=document.querySelectorAll('#task-list input');if(inputs.length)inputs[inputs.length-1].focus();},50);
+}
+function removeTask(i){
+  if(sigData.client||sigData.fourk){sigData.client=null;sigData.fourk=null;showSigWipeWarning();}
+  tasks.splice(i,1);renderTaskList();
+}
+function loadDefaults(){
+  const svc=document.getElementById('e-service').value;
+  if(!svc)return;
+  tasks=[...(TASK_DEFAULTS[svc]||[])];
+  // set frequency defaults
+  const freqMap={office:'Monthly',bank:'Monthly',retail:'Monthly',healthcare:'Monthly',dealership:'Monthly',education:'Monthly',custom:''};
+  const schedMap={office:'as scheduled',bank:'as scheduled',retail:'as scheduled',healthcare:'as scheduled',dealership:'as scheduled',education:'as scheduled',custom:''};
+  document.getElementById('e-freq').value=freqMap[svc]||'';
+  document.getElementById('e-schedule').value=schedMap[svc]||'';
+  renderTaskList();
+}
+
+// ── TAX CALC ──
+function calcTax(){
+  const rate=parseFloat(document.getElementById('e-rate').value)||0;
+  const taxPct=parseFloat(document.getElementById('e-taxrate').value)||0;
+  const tax=rate*(taxPct/100);
+  const total=rate+tax;
+  document.getElementById('e-tax').value=tax.toFixed(2);
+  document.getElementById('e-total').value=total.toFixed(2);
+  updatePreview();
+}
+
+// ── HELPERS ──
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(ds){if(!ds)return'';return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});}
+function fmtDateLong(ds){if(!ds)return'';return new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
+function val(id){return(document.getElementById(id)||{}).value||'';}
+
+// ── SIGNATURE SYSTEM ──
+let sigData={client:null,fourk:null};
+let activeSigParty=null;
+let sigModalDrawing=false;
+
+function openSigModal(party){
+  activeSigParty=party;
+  const names={client:val('e-biz')||'Client',fourk:'RELI Commercial Cleaning'};
+  document.getElementById('sig-modal-title').textContent='Sign — '+(names[party]||party);
+  const canvas=document.getElementById('sig-modal-canvas');
+  // size to window
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight-80;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+  // if already signed, redraw
+  if(sigData[party]){
+    const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,canvas.width,canvas.height);};img.src=sigData[party];
+  }
+  document.getElementById('sig-modal').classList.add('open');
+  initSigModalCanvas();
+}
+
+function initSigModalCanvas(){
+  const canvas=document.getElementById('sig-modal-canvas');
+  if(canvas._init)return;
+  canvas._init=true;
+  const ctx=canvas.getContext('2d');
+  function getPos(e){
+    const rect=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-rect.left)*(canvas.width/rect.width),y:(src.clientY-rect.top)*(canvas.height/rect.height)};
+  }
+  canvas.addEventListener('mousedown',e=>{sigModalDrawing=true;ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+  canvas.addEventListener('mousemove',e=>{if(!sigModalDrawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();});
+  canvas.addEventListener('mouseup',()=>{sigModalDrawing=false;});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();sigModalDrawing=true;ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigModalDrawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+  canvas.addEventListener('touchend',()=>{sigModalDrawing=false;});
+}
+
+function sigModalClear(){
+  const canvas=document.getElementById('sig-modal-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function sigModalDone(){
+  const canvas=document.getElementById('sig-modal-canvas');
+  // check if anything was drawn
+  const ctx=canvas.getContext('2d');
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  const hasContent=data.some((v,i)=>i%4===3&&v>0);
+  if(!hasContent){alert('Please sign before placing.');return;}
+  // crop to content
+  const dataURL=cropSig(canvas);
+  sigData[activeSigParty]=dataURL;
+  document.getElementById('sig-modal').classList.remove('open');
+  // update the sig display in contract
+  placeSig(activeSigParty,dataURL);
+}
+
+function cropSig(canvas){
+  // find bounding box of drawn content
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  const d=ctx.getImageData(0,0,w,h).data;
+  let minX=w,maxX=0,minY=h,maxY=0;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(d[i+3]>10){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}}
+  if(maxX<=minX||maxY<=minY)return canvas.toDataURL();
+  const pad=12;
+  minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+  maxX=Math.min(w,maxX+pad);maxY=Math.min(h,maxY+pad);
+  const tmp=document.createElement('canvas');
+  tmp.width=maxX-minX;tmp.height=maxY-minY;
+  tmp.getContext('2d').drawImage(canvas,minX,minY,tmp.width,tmp.height,0,0,tmp.width,tmp.height);
+  return tmp.toDataURL();
+}
+
+function placeSig(party,dataURL){
+  const wrap=document.getElementById('sig-img-wrap-'+party);
+  if(wrap){wrap.innerHTML='<img src="'+dataURL+'" class="sig-placed" alt="Signature">';}
+  const dateEl=document.getElementById('sig-date-'+party);
+  if(dateEl&&!dateEl.value)dateEl.value=new Date().toISOString().slice(0,10);
+  updateContractSigBtn(party,true);
+  // unlock 4K row once client signs
+  if(party==='client'){
+    const fourkRow=document.getElementById('sig-fourk-row');
+    if(fourkRow){fourkRow.style.opacity='1';fourkRow.style.pointerEvents='auto';}
+  }
+  updateSigReadyBanner();
+}
+
+function updateContractSigBtn(party,signed){
+  const btn=document.getElementById('sig-btn-'+party);
+  const clr=document.getElementById('sig-clear-'+party);
+  const status=document.getElementById('sig-'+party+'-status');
+  if(btn){btn.textContent=signed?'✍ Re-sign':'✍ Tap to sign';}
+  if(clr)clr.style.display=signed?'':'none';
+  if(status){status.textContent=signed?'✓ Signed':'';status.style.color=signed?'var(--green)':'';}
+}
+
+function sigLineClick(party){
+  // only in sign mode
+  if(document.getElementById('sign-bar')&&document.getElementById('sign-bar').style.display!=='none'){
+    // 4K can't sign until client has
+    if(party==='fourk'&&!sigData.client){return;}
+    openSigModal(party);
+  }
+}
+
+function clearEditorSig(party){
+  sigData[party]=null;
+  const wrap=document.getElementById('sig-img-wrap-'+party);
+  if(wrap)wrap.innerHTML='';
+  updateContractSigBtn(party,false);
+  // re-lock 4K row if client sig cleared
+  if(party==='client'){
+    sigData.fourk=null;
+    const fourkRow=document.getElementById('sig-fourk-row');
+    if(fourkRow){fourkRow.style.opacity='0.4';fourkRow.style.pointerEvents='none';}
+    const fourkWrap=document.getElementById('sig-img-wrap-fourk');if(fourkWrap)fourkWrap.innerHTML='';
+    updateContractSigBtn('fourk',false);
+  }
+  updateSigReadyBanner();
+}
+
+function updateSigReadyBanner(){
+  const saveBtn=document.getElementById('btn-save');
+  const bothSigned=!!(sigData.client&&sigData.fourk);
+  if(saveBtn){saveBtn.disabled=!bothSigned;saveBtn.style.opacity=bothSigned?'1':'0.45';}
+  const hint=document.getElementById('sign-bar-hint');
+  if(hint){
+    if(bothSigned)hint.textContent='✓ Both signed — tap Save to finalize.';
+    else if(sigData.client)hint.textContent='Client signed ✓ — now sign your line below.';
+  }
+}
+
+// ── PREVIEW RENDER ──
+function updatePreview(){
+  const biz=val('e-biz')||'[Client Business]';
+  const city=val('e-city')||'Tyler, Texas';
+  const rep=val('e-rep');
+  const freq=val('e-freq')||'[Frequency]';
+  const schedule=val('e-schedule')||'[Cleaning Days]';
+  const rate=parseFloat(val('e-rate'))||0;
+  const tax=parseFloat(val('e-tax'))||0;
+  const total=parseFloat(val('e-total'))||0;
+  const due=val('e-due')||'the 5th of every month';
+  const contractDate=val('e-date');
+  const startDate=val('e-start');
+  const rep4k=val('e-4krep');
+  const contractNum=val('e-contract-num');
+  const supplies=val('e-supplies')||'Cleaning supplies other than paper towels, soap and toilet paper will be provided by RELI Commercial Cleaning';
+  const exclusions=val('e-exclusions')||'Cleaning does not include offices & non-public areas of business.';
+
+  const taskHtml=tasks.length?tasks.map(t=>'<li>'+escHtml(t)+'</li>').join(''):'<li>[No tasks added yet]</li>';
+
+  const rateStr=rate?'$'+rate.toFixed(2):'[rate]';
+  const taxStr=tax?'$'+tax.toFixed(2):'[tax]';
+  const totalStr=total?'$'+total.toFixed(2):'[total]';
+
+  const dateStr=contractDate?fmtDate(contractDate):new Date().toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});
+  const startStr=startDate?fmtDateLong(startDate):'[Start Date]';
+
+  // update status
+  const filled=val('e-biz')&&val('e-service')&&tasks.length&&val('e-rate')&&val('e-date')&&val('e-start');
+  document.getElementById('status-dot').className='status-dot'+(filled?'':' pending');
+  document.getElementById('status-text').textContent=filled?'Contract ready to send or print':'Fill required fields to complete';
+
+  document.getElementById('contract-preview').innerHTML=`
+    <div class="contract-header" id="contract-header-inner">
+      <div class="contract-co-name">RELI Commercial Cleaning</div>
+      <div class="contract-tagline">Veteran-Owned &amp; Christian-Owned &nbsp;·&nbsp; 30 Years of Experience &nbsp;·&nbsp; Tyler, Texas</div>
+      <div class="contract-divider"></div>
+      <div class="contract-client">${escHtml(biz)} — ${escHtml(city)}</div>
+      <div class="contract-subtitle">Proposed Contract ${dateStr}</div>
+    </div>
+
+    <div class="contract-article">
+      <div class="contract-article-title">Article I — Cleaning Task Schedule</div>
+      <div class="contract-article-subtitle">${escHtml(freq)} Service</div>
+      <ul class="contract-task-list">${taskHtml}</ul>
+      <p class="contract-supplies">${escHtml(supplies)}</p>
+      <p class="contract-exclusion">${escHtml(exclusions)}</p>
+    </div>
+
+    <div class="contract-article">
+      <div class="contract-article-title">Article II — Pricing &amp; Cleaning Schedule</div>
+      <p class="contract-para">Article I will be billed monthly for a total of ${rateStr} plus tax for a total of ${totalStr} due no later than ${escHtml(due)}.</p>
+      <p class="contract-para">Cleanings will take place ${escHtml(schedule)} ${escHtml(freq).toLowerCase()}.</p>
+      <p class="contract-para">Any additional services or requests not outlined in this agreement must be approved by both parties and documented in writing as an addendum to this contract prior to work being performed.</p>
+    </div>
+
+    <div class="contract-sig-block">
+      <div class="contract-sig-row">
+        <div class="contract-sig-field">
+          <div class="contract-sig-label" id="sig-client-label">${escHtml(biz)} Representative</div>
+          <div id="sig-img-wrap-client" class="sig-line-empty" onclick="sigLineClick('client')" style="cursor:pointer;"></div>
+          <div id="sig-btn-client-wrap" class="sig-contract-btn-wrap">
+            <button class="sig-contract-btn" id="sig-btn-client" onclick="openSigModal('client')">✍ Tap to sign</button>
+            <button class="sig-contract-btn sig-contract-clear" id="sig-clear-client" onclick="clearEditorSig('client')" style="display:none;">✕ Clear</button>
+          </div>
+          ${rep?'<div class="contract-sig-name" style="margin-top:0.25rem;">'+escHtml(rep)+'</div>':''}
+        </div>
+        <div class="contract-sig-field" style="max-width:130px;">
+          <div class="contract-sig-label">Date</div>
+          <input type="date" id="sig-date-client" style="width:100%;border:none;border-bottom:2px solid #1a1a1a;background:transparent;font-family:'Poppins',sans-serif;font-size:9pt;padding:0.3rem 0;color:#1a1a1a;outline:none;margin-top:4px;">
+        </div>
+      </div>
+
+      <div class="contract-sig-row" id="sig-fourk-row" style="${sigData.client?'':'opacity:0.4;pointer-events:none;'}">
+        <div class="contract-sig-field">
+          <div class="contract-sig-label">RELI Commercial Cleaning</div>
+          <div id="sig-img-wrap-fourk" class="sig-line-empty" onclick="sigLineClick('fourk')" style="cursor:pointer;"></div>
+          <div id="sig-btn-fourk-wrap" class="sig-contract-btn-wrap">
+            <button class="sig-contract-btn" id="sig-btn-fourk" onclick="openSigModal('fourk')">✍ Tap to sign</button>
+            <button class="sig-contract-btn sig-contract-clear" id="sig-clear-fourk" onclick="clearEditorSig('fourk')" style="display:none;">✕ Clear</button>
+          </div>
+          ${rep4k?'<div class="contract-sig-name" style="margin-top:0.25rem;">'+escHtml(rep4k)+'</div>':''}
+        </div>
+        <div class="contract-sig-field" style="max-width:130px;">
+          <div class="contract-sig-label">Date</div>
+          <input type="date" id="sig-date-fourk" style="width:100%;border:none;border-bottom:2px solid #1a1a1a;background:transparent;font-family:'Poppins',sans-serif;font-size:9pt;padding:0.3rem 0;color:#1a1a1a;outline:none;margin-top:4px;">
+        </div>
+      </div>
+
+      <div class="contract-effective">
+        Effective Start Date: <strong>${startStr}</strong>. Open ended agreement with additions or conclusion of agreement given with 30 days notice.
+      </div>
+    </div>
+
+    <div class="contract-footer">
+      <div class="cf-logo">RELI Commercial Cleaning</div>
+      <div class="cf-mid">${escHtml(contractNum||'')}</div>
+      <div class="cf-right">Page <span class="page-num"></span></div>
+    </div>
+  `;
+
+  setTimeout(()=>{
+    const hdr=document.getElementById('contract-header-inner');
+    if(hdr&&!hdr.querySelector('img')){
+      const img=document.createElement('img');
+      img.src=LOGO_URL;img.className='contract-logo';img.alt='RELI Commercial Cleaning';
+      hdr.insertBefore(img,hdr.firstChild);
+    }
+    if(sigData.client)placeSig('client',sigData.client);
+    else updateContractSigBtn('client',false);
+    if(sigData.fourk)placeSig('fourk',sigData.fourk);
+    else{updateContractSigBtn('fourk',false);}
+    updateSigReadyBanner();
+  },50);
+}
+
+// ── SEND MODAL ──
+function openSendModal(){
+  const email=val('e-email');
+  if(email)document.getElementById('send-email').value=email;
+  const biz=val('e-biz');
+  if(biz)document.getElementById('send-msg').value='Hi, please find your service agreement from RELI Commercial Cleaning attached. Review the contract, sign at the bottom, and submit. Once you sign, we will countersign and send you a final copy.\n\nLet us know if you have any questions.\n\nRELI Commercial Cleaning\n903-747-2031';
+  document.getElementById('send-modal').classList.add('open');
+}
+function closeSendModal(){document.getElementById('send-modal').classList.remove('open');}
+function sendContract(){
+  alert('Online signing requires Supabase + Resend setup — coming in the next build. For now use Print / Save PDF and email manually.');
+  closeSendModal();
+}
+
+function mobileSwitchTab(tab,el){
+  document.querySelectorAll('.mobile-tabs button').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const editor=document.getElementById('editor-panel');
+  const preview=document.getElementById('preview-panel');
+  if(tab==='editor'){editor.classList.add('active');preview.style.display='none';}
+  else{editor.classList.remove('active');preview.style.display='';}
+}
+
+function calcTaxAndEdit(){calcTax();onEditField();}
+function loadDefaultsAndEdit(){loadDefaults();onEditField();}
+
+// ── CONTRACT NUMBER ──
+function genContractNum(){
+  const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+  const year=new Date().getFullYear();
+  const seq=String(saved.length+1).padStart(4,'0');
+  const num='RELI-'+year+'-'+seq;
+  document.getElementById('e-contract-num').value=num;
+  updatePreview();
+}
+
+// ── SAVE / LOAD ──
+let currentContractId=null;
+let contractLocked=false; // true when both sigs present and saved as finalized
+
+function isBothSigned(){return !!(sigData.client&&sigData.fourk);}
+
+// Called whenever any field or task changes — wipes sigs if present
+function onEditField(){
+  if(sigData.client||sigData.fourk){
+    sigData.client=null;sigData.fourk=null;
+    showSigWipeWarning();
+  }
+  updatePreview();
+}
+function showSigWipeWarning(){
+  const old=document.getElementById('sig-wipe-warn');if(old)old.remove();
+  const el=document.createElement('div');
+  el.id='sig-wipe-warn';
+  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#ef4444;color:white;font-family:var(--font);font-size:0.8rem;font-weight:700;padding:0.55rem 1.1rem;border-radius:var(--radius-sm);z-index:800;box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+  el.textContent='⚠ Content changed — signatures cleared. Re-sign before saving.';
+  document.body.appendChild(el);
+  setTimeout(()=>{const e=document.getElementById('sig-wipe-warn');if(e)e.remove();},4000);
+}
+
+function saveContract(){
+  const biz=val('e-biz');
+  if(!biz){alert('Add a client name before saving.');return;}
+  let num=val('e-contract-num');
+  if(!num){genContractNum();num=val('e-contract-num');}
+  const bothSigned=isBothSigned();
+  const data={
+    id:currentContractId||uid(),
+    num,biz,
+    savedAt:new Date().toISOString(),
+    finalized:bothSigned,
+    fields:{
+      business:val('e-biz'),contact:val('e-contact'),email:val('e-email'),
+      city:val('e-city'),rep:val('e-rep'),service:val('e-service'),
+      freq:val('e-freq'),schedule:val('e-schedule'),
+      rate:val('e-rate'),taxrate:val('e-taxrate'),tax:val('e-tax'),total:val('e-total'),
+      due:val('e-due'),date:val('e-date'),start:val('e-start'),
+      rep4k:val('e-4krep'),contractNum:num,
+      contactId:window._prefillContactId||'',
+      tasks:[...tasks]
+    },
+    sigs:{client:sigData.client,fourk:sigData.fourk,
+          dateClient:(document.getElementById('sig-date-client')||{}).value||'',
+          dateFourk:(document.getElementById('sig-date-fourk')||{}).value||''}
+  };
+  const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+  const existing=saved.find(c=>c.id===data.id);
+  // if existing record is finalized, never overwrite it — save as new draft instead
+  if(existing&&existing.finalized){
+    alert('This contract is finalized and signed. It cannot be edited.\n\nTo create a new version, use "New Contract".');
+    return;
+  }
+  const idx=saved.findIndex(c=>c.id===data.id);
+  if(idx!==-1)saved[idx]=data;else saved.unshift(data);
+  localStorage.setItem('reli_contracts',JSON.stringify(saved));
+  currentContractId=data.id;
+  contractLocked=bothSigned;
+  updateSaveBtn();
+  if(bothSigned){
+    setMode('saved',num);
+  } else {
+    // flash feedback for draft save
+    const btns=document.querySelectorAll('[onclick="saveContract()"]');
+    btns.forEach(btn=>{const orig=btn.textContent;btn.textContent='✓ Draft saved!';btn.style.color='var(--green)';setTimeout(()=>{btn.textContent=orig;btn.style.color='';},2000);});
+  }
+}
+
+function updateSaveBtn(){
+  // show lock icon if finalized
+  const btns=document.querySelectorAll('[onclick="saveContract()"]');
+  btns.forEach(b=>{if(contractLocked)b.textContent='🔒 Finalized';else b.textContent='💾 Save Contract';});
+}
+
+// ── MODE SYSTEM: edit → sign → send → saved ──
+function setMode(mode,contractNum){
+  const editor=document.getElementById('editor-panel');
+  const signBar=document.getElementById('sign-bar');
+  const sendOverlay=document.getElementById('sign-send');
+  const viewBar=document.getElementById('view-only-bar');
+  if(signBar)signBar.style.display='none';
+  if(sendOverlay)sendOverlay.style.display='none';
+  if(viewBar)viewBar.style.display='none';
+  document.body.classList.remove('mode-saved');
+  if(mode==='edit'){
+    if(editor)editor.style.display='';
+  } else if(mode==='sign'){
+    if(editor)editor.style.display='none';
+    if(signBar)signBar.style.display='flex';
+  } else if(mode==='send'){
+    if(editor)editor.style.display='none';
+    if(sendOverlay)sendOverlay.style.display='block';
+  } else if(mode==='saved'){
+    if(editor)editor.style.display='none';
+    if(viewBar){viewBar.style.display='flex';document.getElementById('view-only-num').textContent=contractNum||'';}
+    document.body.classList.add('mode-saved');
+    setTimeout(()=>{
+      ['sig-date-client','sig-date-fourk'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el){el.readOnly=true;el.style.pointerEvents='none';el.style.color='#555';}
+      });
+    },80);
+  }
+}
+
+function goToSignMode(){
+  const biz=val('e-biz');
+  if(!biz){alert('Add a client name before signing.');return;}
+  const label=document.getElementById('sig-client-label');
+  if(label)label.textContent=(biz||'Client')+' Representative';
+  setMode('sign');
+  const hint=document.getElementById('sign-bar-hint');
+  if(hint)hint.textContent=biz+' signs first — then you sign below.';
+  const pp=document.getElementById('preview-panel');if(pp)pp.scrollTop=999999;
+}
+
+function goToInPerson(){goToSignMode();}
+
+function goToSendFlow(){
+  const biz=val('e-biz');
+  if(!biz){alert('Add a client name first.');return;}
+  setMode('send');
+  const email=val('e-email');
+  if(email)document.getElementById('send-client-email').value=email;
+  const pp=document.getElementById('preview-panel');if(pp)pp.scrollTop=0;
+}
+
+function goToEditMode(){
+  if(sigData.client||sigData.fourk){
+    sigData.client=null;sigData.fourk=null;
+    ['client','fourk'].forEach(p=>{
+      const w=document.getElementById('sig-img-wrap-'+p);if(w)w.innerHTML='';
+      updateContractSigBtn(p,false);
+    });
+    updateSigReadyBanner();
+  }
+  ['sig-date-client','sig-date-fourk'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value='';el.readOnly=false;el.style.pointerEvents='';el.style.color='';}
+  });
+  setMode('edit');
+}
+
+function setViewOnlyMode(on,contractNum){setMode(on?'saved':'edit',contractNum);}
+
+function newContract(){
+  currentContractId=null;contractLocked=false;
+  sigData.client=null;sigData.fourk=null;
+  tasks=[];
+  ['e-biz','e-contact','e-email','e-rep','e-service','e-freq','e-schedule',
+   'e-rate','e-tax','e-total','e-start','e-4krep','e-contract-num'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('e-city').value='Tyler, Texas';
+  document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('e-taxrate').value='8.25';
+  document.getElementById('e-supplies').value='Cleaning supplies other than paper towels, soap and toilet paper will be provided by RELI Commercial Cleaning';
+  document.getElementById('e-exclusions').value='Cleaning does not include offices & non-public areas of business.';
+  setMode('edit');
+  updateSaveBtn();
+  renderTaskList();
+  updatePreview();
+}
+
+function loadContract(id){
+  const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+  const c=saved.find(x=>x.id===id);if(!c)return;
+  currentContractId=c.id;
+  contractLocked=!!c.finalized;
+  const f=c.fields;
+  const setV=(elId,v)=>{const el=document.getElementById(elId);if(el)el.value=v||'';};
+  setV('e-biz',f.business);setV('e-contact',f.contact);setV('e-email',f.email);
+  setV('e-city',f.city);setV('e-rep',f.rep);setV('e-service',f.service);
+  setV('e-freq',f.freq);setV('e-schedule',f.schedule);
+  setV('e-rate',f.rate);setV('e-taxrate',f.taxrate);setV('e-tax',f.tax);
+  setV('e-total',f.total);setV('e-due',f.due);setV('e-date',f.date);
+  setV('e-start',f.start);setV('e-4krep',f.rep4k);setV('e-contract-num',f.contractNum);
+  setV('e-supplies',f.supplies);setV('e-exclusions',f.exclusions);
+  tasks=[...(f.tasks||[])];renderTaskList();
+  sigData.client=c.sigs?.client||null;
+  sigData.fourk=c.sigs?.fourk||null;
+  // restore sig dates after preview renders
+  setTimeout(()=>{
+    const dc=document.getElementById('sig-date-client');if(dc)dc.value=c.sigs?.dateClient||'';
+    const df=document.getElementById('sig-date-fourk');if(df)df.value=c.sigs?.dateFourk||'';
+    // lock dates if finalized
+    if(c.finalized){
+      [dc,df].forEach(el=>{if(el){el.readOnly=true;el.style.pointerEvents='none';el.style.color='#555';}});
+    }
+  },100);
+  closeSavedModal();
+  updateSaveBtn();
+  updatePreview();
+  setViewOnlyMode(contractLocked,c.num);
+}
+
+function deleteContract(id,e){
+  e.stopPropagation();
+  const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+  const c=saved.find(x=>x.id===id);if(!c)return;
+  if(c.finalized){
+    // require typing contract number to delete a finalized contract
+    const entered=window.prompt('This is a finalized signed contract.\n\nType the contract number to confirm deletion:\n'+c.num);
+    if(entered===null)return;
+    if(entered.trim()!==c.num){alert('Contract number did not match. Deletion cancelled.');return;}
+  }
+  localStorage.setItem('reli_contracts',JSON.stringify(saved.filter(x=>x.id!==id)));
+  if(currentContractId===id){currentContractId=null;contractLocked=false;updateSaveBtn();}
+  renderSavedList();
+}
+
+function openSavedModal(){
+  renderSavedList();
+  document.getElementById('saved-modal').classList.add('open');
+}
+function closeSavedModal(){document.getElementById('saved-modal').classList.remove('open');}
+
+function renderSavedList(){
+  const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+  const list=document.getElementById('contracts-list');
+  const empty=document.getElementById('contracts-empty');
+  if(!saved.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=saved.map(c=>{
+    const finalBadge=c.finalized?'<span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25);padding:0.1rem 0.38rem;border-radius:50px;flex-shrink:0;">✓ Signed</span>':'<span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;background:var(--amber-glow);color:var(--amber);border:1px solid rgba(232,131,58,0.3);padding:0.1rem 0.38rem;border-radius:50px;flex-shrink:0;">Draft</span>';
+    return'<div class="csr" onclick="loadContract(\''+c.id+'\')">'+
+      '<div class="csr-num">'+c.num+'</div>'+
+      '<div class="csr-body"><div class="csr-name">'+c.biz+'</div>'+
+      '<div class="csr-date" style="display:flex;gap:0.4rem;align-items:center;margin-top:0.15rem;">'+finalBadge+' <span>'+new Date(c.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</span></div></div>'+
+      '<button class="csr-del" onclick="deleteContract(\''+c.id+'\',event)" title="Delete">✕</button>'+
+      '</div>';
+  }).join('');
+}
+
+// ── INIT ──
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSendModal();closeSavedModal();}});
+// set today's date
+document.getElementById('e-date').value=new Date().toISOString().slice(0,10);
+// read URL params to pre-fill from ops tool
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  // load saved contract by ID
+  if(p.get('load')){
+    const saved=JSON.parse(localStorage.getItem('reli_contracts')||'[]');
+    const c=saved.find(x=>x.id===p.get('load'));
+    if(c){loadContract(c.id);return;}
+  }
+  // pre-fill from contact data
+  if(p.get('biz')){
+    const setV=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v;};
+    setV('e-biz',p.get('biz'));
+    setV('e-city',p.get('city'));
+    setV('e-rep',p.get('rep'));
+    setV('e-email',p.get('email'));
+    setV('e-taxrate',p.get('taxrate')||'8.25');
+    // store contactId for linking back
+    if(p.get('contactId'))window._prefillContactId=p.get('contactId');
+    // load service defaults
+    const svcMap={'Office':'office','Bank':'bank','Retail':'retail','Healthcare':'healthcare','Dealership':'dealership','Education':'education'};
+    const svcKey=svcMap[p.get('service')];
+    if(svcKey){document.getElementById('e-service').value=svcKey;loadDefaults();}
+    if(p.get('freq'))document.getElementById('e-freq').value=p.get('freq');
+    if(p.get('rate')){
+      document.getElementById('e-rate').value=p.get('rate');
+      calcTax();
+    }
+    genContractNum();
+  }
+  updatePreview();
+})();
+</script>
+</body>
+</html>
