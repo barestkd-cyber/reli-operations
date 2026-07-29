@@ -442,6 +442,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
   <div class="main-tab" onclick="switchTab('schedule',this)">Schedule</div>
   <div class="main-tab" onclick="switchTab('leadmgr',this)">Lead Manager</div>
   <div class="main-tab" onclick="switchTab('outreach',this)">Outreach</div>
+  <div class="main-tab" onclick="switchTab('timesheets',this)">Timesheets</div>
   <div class="main-tab" onclick="switchTab('reports',this)">Reports</div>
   <div class="main-tab" onclick="switchTab('staff',this)">Staff</div>
 </div>
@@ -599,6 +600,36 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
     <button class="btn btn-ghost btn-sm" onclick="openStaffModal(null)">+ Staff</button>
   </div>
   <div class="staff-wrap" id="staff-list"></div>
+</div>
+
+<!-- TIMESHEETS TAB -->
+<div class="tab-content" id="tab-timesheets">
+  <div class="staff-toolbar">
+    <div class="staff-filter">
+      <button class="sf-btn active" id="tsf-review" onclick="tsFilter('review',this)">Needs Review</button>
+      <button class="sf-btn" id="tsf-open" onclick="tsFilter('open',this)">On the Clock</button>
+      <button class="sf-btn" id="tsf-all" onclick="tsFilter('all',this)">All Recent</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="renderTimesheets()" style="margin-left:auto;">↻ Refresh</button>
+  </div>
+  <div class="ts-wrap" id="ts-list"></div>
+</div>
+
+<!-- TIMESHEET CORRECTION MODAL -->
+<div class="modal-overlay" id="ts-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Fix Clock-Out</div><button class="modal-close" onclick="closeTsModal()">✕</button></div>
+    <div class="modal-body">
+      <div id="ts-modal-info" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem;margin-bottom:0.9rem;font-size:0.85rem;line-height:1.5;"></div>
+      <div class="fg"><label>Clock-out time</label><input type="datetime-local" id="ts-modal-out"></div>
+      <p style="font-size:0.76rem;color:var(--text-muted);margin:0.5rem 0 0;">The original time is kept on record. This edit is stamped with your name and the time you made it.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeTsModal()">Cancel</button>
+      <button class="btn btn-primary" id="ts-modal-save" onclick="saveTsCorrection()">Save Correction</button>
+    </div>
+  </div>
 </div>
 
 <button class="fab" id="fab" onclick="topbarAdd()">+ Contact</button>
@@ -1046,7 +1077,7 @@ function switchTab(tab,el){
   const tc=document.getElementById('tab-'+tab);if(tc)tc.classList.add('active');
   const labels={contacts:'+ Contact',schedule:'+ Event',leads:'+ Lead',outreach:'+ Prospect',staff:'+ Staff'};
   const lbl=labels[tab]||'';
-  const noFab=tab==='reports'||tab==='staff'||tab==='leadmgr';
+  const noFab=tab==='reports'||tab==='staff'||tab==='leadmgr'||tab==='timesheets';
   document.getElementById('fab').style.display=noFab?'none':'flex';
   document.getElementById('fab').textContent=lbl;
   document.getElementById('topbar-add-btn').style.display=noFab?'none':'';
@@ -1057,6 +1088,7 @@ function switchTab(tab,el){
   else if(tab==='leadmgr')renderLeadManager();
   else if(tab==='reports'){initReports();renderReports();}
   else if(tab==='staff')renderStaff();
+  else if(tab==='timesheets')renderTimesheets();
   else renderProspects();
 }
 function topbarAdd(){
@@ -2807,6 +2839,190 @@ async function signOut(){
   b.textContent="Setup required — add the RELI Supabase URL + publishable key (SB_URL / SB_KEY in index.html). Login and data will not work until then.";
   document.body.appendChild(b);
 })();
+</script>
+
+<!-- ══ TIMESHEETS ══ Review queue for the time clock. Reads the timeclock_review
+     view + time_entries; admin corrections write back with an audit trail. -->
+<style>
+.ts-wrap{padding:0.5rem 0 4rem;}
+.ts-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem 1rem;margin-bottom:0.7rem;}
+.ts-card.flagged{border-color:var(--border-gold);}
+.ts-card.onclock{border-left:3px solid var(--green);}
+.ts-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;flex-wrap:wrap;}
+.ts-name{font-weight:700;font-size:0.98rem;color:var(--text);}
+.ts-site{font-size:0.82rem;color:var(--text-muted);margin-top:0.1rem;}
+.ts-badge{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;padding:0.2rem 0.55rem;border-radius:50px;white-space:nowrap;}
+.ts-badge.b-open{background:var(--green-glow,rgba(52,199,89,.15));color:var(--green);}
+.ts-badge.b-review{background:var(--gold-glow);color:var(--gold);}
+.ts-badge.b-closed{background:var(--surface-hover);color:var(--text-muted);}
+.ts-times{display:flex;gap:1.4rem;margin-top:0.7rem;flex-wrap:wrap;font-size:0.85rem;}
+.ts-times .lbl{display:block;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:0.15rem;}
+.ts-times .val{font-weight:600;color:var(--text);}
+.ts-flags{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.7rem;}
+.ts-flag{font-size:0.7rem;font-weight:600;padding:0.18rem 0.5rem;border-radius:var(--radius-sm);background:var(--gold-glow);color:var(--gold);}
+.ts-actions{display:flex;gap:0.45rem;margin-top:0.8rem;flex-wrap:wrap;}
+</style>
+<script>
+let tsFilterState='review';
+let tsNames=null;            // {uid: name}
+let tsEditingId=null;
+
+function tsFilter(f,el){
+  tsFilterState=f;
+  document.querySelectorAll('#tab-timesheets .sf-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderTimesheets();
+}
+
+// Friendly labels for the raw server flags.
+const TS_FLAG_LABELS={
+  out_of_range_in:'Clocked in off-site',
+  out_of_range_out:'Clocked out off-site',
+  low_accuracy_in:'Weak GPS (in)',
+  low_accuracy_out:'Weak GPS (out)',
+  no_location_in:'No location (in)',
+  no_location_out:'No location (out)',
+  no_site_selected:'No site picked',
+  auto_closed_max_hours:'Auto-closed · over 10h',
+  auto_closed_next_shift:'Auto-closed · new shift',
+  reviewed:'Reviewed',
+  corrected:'Corrected'
+};
+
+function tsEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function tsIsAdmin(){return currentUser&&(currentUser.role==='admin'||currentUser.role==='owner');}
+
+// Resolve staff UUIDs -> names once (defensive: if profiles.name isn't readable, we just show a short id).
+async function tsLoadNames(){
+  if(tsNames)return;
+  tsNames={};
+  try{
+    const rows=await sbFetch('profiles?select=id,name');
+    if(Array.isArray(rows))rows.forEach(r=>{if(r&&r.id)tsNames[r.id]=r.name||'';});
+  }catch(e){/* names are best-effort; fall back to short ids */}
+}
+function tsWho(id){return (tsNames&&tsNames[id])||('Staff '+String(id||'').slice(0,8));}
+
+function tsFmt(iso){
+  if(!iso)return '—';
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+
+         d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function tsHours(inISO,outISO){
+  if(!inISO)return '';
+  const end=outISO?new Date(outISO):new Date();
+  const h=(end-new Date(inISO))/3600000;
+  return (h>=0?h:0).toFixed(2)+'h';
+}
+function tsToInput(iso){ // ISO -> value for datetime-local (local time)
+  const d=iso?new Date(iso):new Date();
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+
+async function renderTimesheets(){
+  const el=document.getElementById('ts-list');
+  if(!el)return;
+  el.innerHTML='<div class="empty"><div class="empty-sub">Loading…</div></div>';
+  await tsLoadNames();
+
+  let path;
+  if(tsFilterState==='open')      path='time_entries?status=eq.open&select=*,job_sites(name)&order=clock_in_at.desc';
+  else if(tsFilterState==='all')  path='time_entries?select=*,job_sites(name)&order=clock_in_at.desc&limit=100';
+  else                            path='timeclock_review?select=*&limit=100'; // view is pre-ordered
+
+  let rows;
+  try{ rows=await sbFetch(path); }catch(e){ rows=null; }
+  if(rows===null){
+    el.innerHTML='<div class="empty"><div class="empty-icon">⏱️</div><div class="empty-title">Time clock not connected yet</div><div class="empty-sub">These tables get created when the Supabase schema is applied. Nothing to show until a cleaner clocks in.</div></div>';
+    return;
+  }
+  if(!rows.length){
+    const msg=tsFilterState==='open'?'No one is clocked in right now.':tsFilterState==='review'?'Nothing needs review. All shifts are clean. ✅':'No time entries yet.';
+    el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All clear</div><div class="empty-sub">'+msg+'</div></div>';
+    return;
+  }
+
+  el.innerHTML=rows.map(r=>{
+    const siteName=(r.job_sites&&r.job_sites.name)||r.site_name||'No site';
+    const open=r.status==='open';
+    const flags=Array.isArray(r.flags)?r.flags:[];
+    const badge=open?'<span class="ts-badge b-open">On the clock</span>'
+      :(r.status==='closed'?'<span class="ts-badge b-closed">Closed</span>'
+      :'<span class="ts-badge b-review">Needs review</span>');
+    const flagChips=flags.length?('<div class="ts-flags">'+flags.map(f=>'<span class="ts-flag">'+tsEsc(TS_FLAG_LABELS[f]||f)+'</span>').join('')+'</div>'):'';
+    const canAct=tsIsAdmin()&&!open;
+    const actions=canAct?('<div class="ts-actions">'
+        +'<button class="btn btn-ghost btn-sm" onclick="openTsModal(\''+r.id+'\')">Fix clock-out</button>'
+        +(r.status!=='closed'?'<button class="btn btn-primary btn-sm" onclick="tsApprove(\''+r.id+'\')">Approve</button>':'')
+      +'</div>'):'';
+    return '<div class="ts-card '+(open?'onclock':(flags.length?'flagged':''))+'" data-id="'+r.id+'">'
+      +'<div class="ts-top"><div><div class="ts-name">'+tsEsc(tsWho(r.staff_id))+'</div>'
+      +'<div class="ts-site">'+tsEsc(siteName)+'</div></div>'+badge+'</div>'
+      +'<div class="ts-times">'
+      +'<div><span class="lbl">In</span><span class="val">'+tsFmt(r.clock_in_at)+'</span></div>'
+      +'<div><span class="lbl">Out</span><span class="val">'+(open?'—':tsFmt(r.clock_out_at))+'</span></div>'
+      +'<div><span class="lbl">Hours</span><span class="val">'+tsHours(r.clock_in_at,r.clock_out_at)+(open?' so far':'')+'</span></div>'
+      +'</div>'+flagChips+actions+'</div>';
+  }).join('');
+}
+
+// Keep a small cache of the row being edited so we don't refetch.
+let tsRowCache={};
+async function openTsModal(id){
+  if(!tsIsAdmin()){alert('Only an admin can correct time entries.');return;}
+  const rows=await sbFetch('time_entries?id=eq.'+id+'&select=*,job_sites(name)');
+  const r=rows&&rows[0];
+  if(!r){alert('Could not load that entry.');return;}
+  tsEditingId=id; tsRowCache[id]=r;
+  const siteName=(r.job_sites&&r.job_sites.name)||'No site';
+  document.getElementById('ts-modal-info').innerHTML=
+    '<strong>'+tsEsc(tsWho(r.staff_id))+'</strong> · '+tsEsc(siteName)+'<br>'
+    +'Clocked in '+tsFmt(r.clock_in_at)+'<br>'
+    +'System recorded out: '+(r.clock_out_at?tsFmt(r.clock_out_at):'— (still open)');
+  document.getElementById('ts-modal-out').value=tsToInput(r.clock_out_at||r.clock_in_at);
+  document.getElementById('ts-modal').classList.add('open');
+}
+function closeTsModal(){document.getElementById('ts-modal').classList.remove('open');tsEditingId=null;}
+
+async function saveTsCorrection(){
+  const id=tsEditingId; if(!id)return;
+  const r=tsRowCache[id]||{};
+  const v=document.getElementById('ts-modal-out').value;
+  if(!v){alert('Pick a clock-out time.');return;}
+  const iso=new Date(v).toISOString();
+  if(new Date(iso)<=new Date(r.clock_in_at)){alert('Clock-out must be after clock-in.');return;}
+  const flags=(Array.isArray(r.flags)?r.flags:[]).filter(f=>f!=='reviewed');
+  if(!flags.includes('corrected'))flags.push('corrected');
+  const body={
+    clock_out_at:iso,
+    status:'closed',
+    clock_out_source:'admin',
+    edited_by:currentUser.id,
+    edited_at:new Date().toISOString(),
+    flags:flags
+  };
+  // Preserve the very first machine-recorded time only once.
+  if(!r.original_clock_out_at)body.original_clock_out_at=r.clock_out_at||null;
+  const btn=document.getElementById('ts-modal-save');btn.disabled=true;btn.textContent='Saving…';
+  const res=await sbFetch('time_entries?id=eq.'+id,{method:'PATCH',body:JSON.stringify(body),prefer:'return=minimal'});
+  btn.disabled=false;btn.textContent='Save Correction';
+  if(res===null){alert('Save failed — you may not have permission, or the DB isn\'t connected yet. Check the console.');return;}
+  closeTsModal();renderTimesheets();
+}
+
+async function tsApprove(id){
+  if(!tsIsAdmin())return;
+  const rows=await sbFetch('time_entries?id=eq.'+id+'&select=flags');
+  const r=rows&&rows[0]; if(!r){alert('Could not load that entry.');return;}
+  const flags=(Array.isArray(r.flags)?r.flags:[]);
+  if(!flags.includes('reviewed'))flags.push('reviewed');
+  const res=await sbFetch('time_entries?id=eq.'+id,{method:'PATCH',prefer:'return=minimal',
+    body:JSON.stringify({status:'closed',edited_by:currentUser.id,edited_at:new Date().toISOString(),flags:flags})});
+  if(res===null){alert('Approve failed — check permissions/console.');return;}
+  renderTimesheets();
+}
 </script>
 </body>
 </html>
