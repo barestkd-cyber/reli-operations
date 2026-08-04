@@ -13,6 +13,7 @@
 // ---------------------------------------------------------------------------
 
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
 
@@ -33,8 +34,20 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
+  // Deployed with --no-verify-jwt (so CORS preflights work), which means WE
+  // must gate access: only a signed-in CRM user may spend Anthropic tokens.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!authHeader.startsWith("Bearer ")) return json({ error: "Sign in to use Outreach search." }, 401);
+  const asUser = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+  const { data: userData, error: userErr } = await asUser.auth.getUser();
+  if (userErr || !userData?.user) return json({ error: "Sign in to use Outreach search." }, 401);
+
   if (!Deno.env.get("ANTHROPIC_API_KEY")) {
-    return json({ error: "ANTHROPIC_API_KEY secret is not set on this project." }, 500);
+    return json({ error: "ANTHROPIC_API_KEY secret is not set on this project yet. Outreach search stays off until it is added." }, 500);
   }
 
   try {
