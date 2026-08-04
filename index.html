@@ -36,14 +36,27 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 .cl-new{font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-gold);padding:0.08rem 0.35rem;border-radius:50px;}
 .cl-entry-date{font-size:0.7rem;color:var(--text-dim);margin-top:0.1rem;}
 .cl-entry-body{font-size:0.83rem;color:var(--text-muted);line-height:1.55;margin-top:0.35rem;}
-.main-tabs{display:flex;background:var(--charcoal-mid);border-bottom:2px solid var(--border);position:sticky;top:52px;z-index:199;overflow-x:auto;}
+/* Left sidebar nav (traditional-CRM layout). Desktop: fixed rail. Mobile: pull-out drawer. */
+.main-tabs{display:flex;flex-direction:column;background:var(--charcoal-mid);position:fixed;left:0;top:52px;bottom:0;width:200px;z-index:300;border-right:2px solid var(--border);overflow-y:auto;padding-top:0.5rem;}
 .main-tabs::-webkit-scrollbar{display:none;}
-.main-tab{flex-shrink:0;padding:0.7rem 1rem;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;white-space:nowrap;border-right:1px solid var(--border);}
-.main-tab:last-child{border-right:none;}
-.main-tab:hover{color:var(--text);}
-.main-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.main-tab{padding:0.85rem 1rem;display:flex;align-items:center;gap:0.65rem;font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;white-space:nowrap;}
+
+.main-tab:hover{color:var(--text);background:var(--surface-hover);}
+.main-tab.active{color:var(--gold);border-left-color:var(--gold);background:var(--gold-glow);}
+.nav-burger{display:none;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1.05rem;line-height:1;padding:0.32rem 0.55rem;cursor:pointer;margin-right:0.6rem;}
+.nav-backdrop{display:none;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
+@media(min-width:901px){
+  .tab-content.active{margin-left:200px;}
+}
+@media(max-width:900px){
+  .nav-burger{display:inline-flex;}
+  .main-tabs{top:0;width:236px;transform:translateX(-105%);transition:transform 0.25s ease;z-index:500;padding-top:3.6rem;box-shadow:6px 0 24px rgba(0,0,0,0.5);}
+  .main-tabs.open{transform:translateX(0);}
+  .nav-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:499;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+  .nav-backdrop.show{opacity:1;pointer-events:auto;}
+}
 .btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;border-radius:var(--radius-sm);font-family:var(--font);font-weight:600;font-size:0.85rem;border:1px solid transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
 .btn-primary{background:var(--gold);color:var(--white);}
 .btn-primary:hover{background:var(--gold-dark);}
@@ -125,7 +138,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 .fab{position:fixed;bottom:1.5rem;right:1.25rem;z-index:89;background:var(--gold);color:var(--white);border:none;border-radius:50px;padding:0.8rem 1.3rem;font-family:var(--font);font-weight:700;font-size:0.88rem;cursor:pointer;box-shadow:0 4px 20px rgba(227,186,53,0.4);display:flex;align-items:center;gap:0.4rem;transition:all 0.18s;}
 .fab:hover{background:var(--gold-dark);transform:translateY(-2px);}
 /* CONTACTS */
-.filter-bar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.7rem 1rem;display:flex;flex-direction:column;gap:0.6rem;position:sticky;top:96px;z-index:100;}
+.filter-bar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.7rem 1rem;display:flex;flex-direction:column;gap:0.6rem;position:sticky;top:52px;z-index:100;}
 .filter-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
 .ftab{flex:1;display:flex;flex-direction:column;align-items:center;padding:0.55rem 0.25rem;cursor:pointer;border:none;background:none;border-right:1px solid var(--border);transition:background 0.15s;gap:0.05rem;font-family:var(--font);}
 .ftab:last-child{border-right:none;}
@@ -201,7 +214,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 .inv-paid.yes{background:rgba(34,197,94,0.12);color:var(--green);}
 .inv-paid.no{background:rgba(239,68,68,0.12);color:var(--red);}
 /* SCHEDULE */
-.cal-nav{background:var(--charcoal-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.55rem 1rem;position:sticky;top:96px;z-index:100;}
+.cal-nav{background:var(--charcoal-mid);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.55rem 1rem;position:sticky;top:52px;z-index:100;}
 .nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);border-radius:var(--radius-sm);padding:0.38rem 0.8rem;cursor:pointer;font-family:var(--font);font-size:0.88rem;transition:all 0.15s;}
 .nav-btn:hover{background:var(--surface-hover);color:var(--text);}
 .month-title{font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.05em;color:var(--white);}
@@ -258,8 +271,8 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 .scope-opt-title{font-weight:700;font-size:0.88rem;color:var(--text);}
 .scope-opt-sub{font-size:0.76rem;color:var(--text-muted);margin-top:0.12rem;}
 /* LEADS */
-.leads-toolbar{padding:0.7rem 1rem;display:flex;gap:0.45rem;align-items:center;border-bottom:1px solid var(--border);background:var(--charcoal-mid);position:sticky;top:96px;z-index:100;}
-.lm-toolbar{padding:0.7rem 1rem;display:flex;gap:0.45rem;align-items:center;border-bottom:1px solid var(--border);background:var(--charcoal-mid);position:sticky;top:96px;z-index:100;}
+.leads-toolbar{padding:0.7rem 1rem;display:flex;gap:0.45rem;align-items:center;border-bottom:1px solid var(--border);background:var(--charcoal-mid);position:sticky;top:52px;z-index:100;}
+.lm-toolbar{padding:0.7rem 1rem;display:flex;gap:0.45rem;align-items:center;border-bottom:1px solid var(--border);background:var(--charcoal-mid);position:sticky;top:52px;z-index:100;}
 .lm-toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
 .lm-tbtn{padding:0.45rem 0.95rem;cursor:pointer;border:none;background:none;color:var(--text-dim);font-family:var(--font);font-size:0.8rem;font-weight:700;}
 .lm-tbtn.active{background:var(--gold-glow);color:var(--gold);}
@@ -332,7 +345,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 .find-status.done{color:var(--green);font-style:normal;font-weight:600;}
 .find-status.err{color:var(--red);}
 /* REPORTS */
-.reports-toolbar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.8rem 1rem;position:sticky;top:96px;z-index:100;}
+.reports-toolbar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.8rem 1rem;position:sticky;top:52px;z-index:100;}
 .rpt-filters{display:flex;gap:0.5rem;flex-wrap:wrap;}
 .rpt-filters .fg label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);display:block;margin-bottom:0.25rem;}
 .rpt-filters input,.rpt-filters select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font);font-size:0.82rem;padding:0.42rem 0.6rem;}
@@ -371,7 +384,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 
 /* STAFF */
 .staff-wrap{padding:1rem 1rem 7rem;}
-.staff-toolbar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.7rem 1rem;display:flex;gap:0.5rem;align-items:center;position:sticky;top:96px;z-index:100;}
+.staff-toolbar{background:var(--charcoal-mid);border-bottom:1px solid var(--border);padding:0.7rem 1rem;display:flex;gap:0.5rem;align-items:center;position:sticky;top:52px;z-index:100;}
 .staff-filter{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
 .sf-btn{padding:0.32rem 0.65rem;font-size:0.75rem;font-weight:600;background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:var(--font);border-right:1px solid var(--border);transition:all 0.15s;}
 .sf-btn:last-child{border-right:none;}
@@ -428,16 +441,17 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 </div>
 
 <div class="topbar">
+  <button class="nav-burger" onclick="toggleSideNav()" aria-label="Menu">☰</button>
   <div class="topbar-logo"><span>RELI</span> CRM</div>
   <div style="display:flex;gap:0.4rem;align-items:center;">
-    <button class="btn btn-ghost btn-sm" id="share-btn" style="display:none;" onclick="openShareModal()">📤 Share</button>
+    <button class="btn btn-ghost btn-sm" id="share-btn" style="display:none;" onclick="openShareModal()">Share</button>
     <button class="btn btn-primary btn-sm" id="topbar-add-btn" onclick="topbarAdd()">+ Contact</button>
     <button class="btn btn-ghost btn-sm" onclick="openChangelog()" title="What's New" style="position:relative;">What's New<span id="whatsnew-badge" style="display:none;position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--gold);color:var(--white);font-size:0.6rem;font-weight:800;align-items:center;justify-content:center;">0</span></button>
     <button class="btn btn-ghost btn-sm" onclick="signOut()" title="Sign out">Sign out</button>
   </div>
 </div>
 
-<div class="main-tabs">
+<div class="main-tabs" id="side-nav">
   <div class="main-tab active" onclick="switchTab('contacts',this)">Contacts</div>
   <div class="main-tab" onclick="switchTab('schedule',this)">Schedule</div>
   <div class="main-tab" onclick="switchTab('leadmgr',this)">Lead Manager</div>
@@ -446,6 +460,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
   <div class="main-tab" onclick="switchTab('reports',this)">Reports</div>
   <div class="main-tab" onclick="switchTab('staff',this)">Staff</div>
 </div>
+<div class="nav-backdrop" id="nav-backdrop" onclick="toggleSideNav(false)"></div>
 
 <!-- CONTACTS TAB -->
 <div class="tab-content active" id="tab-contacts">
@@ -457,7 +472,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
       <option value="all" id="fc-all">All</option>
     </select>
     <div class="controls-row">
-      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" type="text" id="c-search" placeholder="Search..." oninput="renderContacts()"></div>
+      <div class="search-wrap"><span class="search-icon"></span><input class="search-input" type="text" id="c-search" placeholder="Search..." oninput="renderContacts()"></div>
       <select class="sort-sel" id="c-sort" onchange="renderContacts()">
         <option value="az">A→Z</option><option value="nextclean">Next Clean</option>
         <option value="rate-desc">Rate ↓</option><option value="rate-asc">Rate ↑</option>
@@ -483,7 +498,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
       </tr></thead><tbody id="c-list-tbody"></tbody></table>
     </div>
   </div>
-  <div class="empty" id="c-empty" style="display:none;"><div class="empty-icon">👥</div><div class="empty-title">No contacts</div><div class="empty-sub">Add your first client or lead.</div></div>
+  <div class="empty" id="c-empty" style="display:none;"><div class="empty-title">No contacts</div><div class="empty-sub">Add your first client or lead.</div></div>
 </div>
 
 <!-- SCHEDULE TAB -->
@@ -523,20 +538,20 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
   <div class="outreach-wrap">
 
     <div class="find-biz-box">
-      <div class="find-biz-title">🔍 Find Businesses to Call</div>
+      <div class="find-biz-title"> Find Businesses to Call</div>
       <div class="find-biz-grid">
-        <button class="find-biz-btn" id="fb-office" onclick="findBiz('office buildings and commercial office suites','Office')">🏢 Offices</button>
-        <button class="find-biz-btn" id="fb-bank" onclick="findBiz('banks, credit unions and financial institutions','Bank')">🏦 Banks / Financial</button>
-        <button class="find-biz-btn" id="fb-retail" onclick="findBiz('retail stores and shopping centers','Retail')">🛍️ Retail</button>
-        <button class="find-biz-btn" id="fb-healthcare" onclick="findBiz('medical clinics, dental offices and urgent care centers','Healthcare')">🏥 Healthcare</button>
-        <button class="find-biz-btn" id="fb-dealership" onclick="findBiz('car dealerships and auto showrooms','Dealership')">🚗 Dealerships</button>
-        <button class="find-biz-btn" id="fb-education" onclick="findBiz('schools, campuses and educational facilities','Education')">🎓 Education</button>
+        <button class="find-biz-btn" id="fb-office" onclick="findBiz('office buildings and commercial office suites','Office')">Offices</button>
+        <button class="find-biz-btn" id="fb-bank" onclick="findBiz('banks, credit unions and financial institutions','Bank')">Banks / Financial</button>
+        <button class="find-biz-btn" id="fb-retail" onclick="findBiz('retail stores and shopping centers','Retail')">Retail</button>
+        <button class="find-biz-btn" id="fb-healthcare" onclick="findBiz('medical clinics, dental offices and urgent care centers','Healthcare')">Healthcare</button>
+        <button class="find-biz-btn" id="fb-dealership" onclick="findBiz('car dealerships and auto showrooms','Dealership')">Dealerships</button>
+        <button class="find-biz-btn" id="fb-education" onclick="findBiz('schools, campuses and educational facilities','Education')">Education</button>
       </div>
       <div class="find-status" id="find-status"></div>
     </div>
 
     <div class="script-box">
-      <div class="script-title">📞 Call Script</div>
+      <div class="script-title"> Call Script</div>
       <div class="script-step"><div class="script-num">1</div><div class="script-text"><strong>Intro:</strong> "Hi, this is [name] with RELI Commercial Cleaning in Tyler. We specialize in [service] and I'm reaching out to local businesses."</div></div>
       <div class="script-step"><div class="script-num">2</div><div class="script-text"><strong>Qualify:</strong> "Do you currently have a cleaning service, or is that handled in-house?"</div></div>
       <div class="script-step"><div class="script-num">3</div><div class="script-text"><strong>Interested:</strong> "We'd love to do a free walkthrough and quote — no obligation. When works this week?"</div></div>
@@ -610,7 +625,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
       <button class="sf-btn" id="tsf-open" onclick="tsFilter('open',this)">On the Clock</button>
       <button class="sf-btn" id="tsf-all" onclick="tsFilter('all',this)">All Recent</button>
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="renderTimesheets()" style="margin-left:auto;">↻ Refresh</button>
+    <button class="btn btn-ghost btn-sm" onclick="renderTimesheets()" style="margin-left:auto;">Refresh</button>
   </div>
   <div class="ts-wrap" id="ts-list"></div>
 </div>
@@ -709,7 +724,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
   </div>
   <div class="d-tab-content" id="dtab-agreement">
     <div id="agreement-status" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.5rem;text-align:center;">
-      <div style="font-size:2rem;margin-bottom:0.75rem;">📄</div>
+      <div style="font-size:2rem;margin-bottom:0.75rem;"></div>
       <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1rem;" id="agreement-status-text">No agreement on file.</p>
       <button class="btn btn-primary btn-sm" onclick="openContractGenerator()">Generate Contract</button>
     </div>
@@ -765,7 +780,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
     <div class="modal-header"><div class="modal-title" id="em-title">New Event</div><button class="modal-close" onclick="closeEventModal()">✕</button></div>
     <div class="modal-body">
       <div class="form-section">Event Details</div>
-      <div class="form-row"><div class="fg"><label>Type</label><select id="ef-type"><option value="clean">🧹 Clean</option><option value="quote">📋 Quote</option></select></div><div class="fg"><label>Contact</label><select id="ef-contact" onchange="eventAutoFill()"><option value="">Select...</option></select></div></div>
+      <div class="form-row"><div class="fg"><label>Type</label><select id="ef-type"><option value="clean"> Clean</option><option value="quote"> Quote</option></select></div><div class="fg"><label>Contact</label><select id="ef-contact" onchange="eventAutoFill()"><option value="">Select...</option></select></div></div>
       <div class="form-row single" id="ef-svc-row" style="display:none;"><div class="fg"><label>Service</label><select id="ef-svc-pick" onchange="fillFromSvc()"><option value="">Pick service...</option></select></div></div>
       <div class="form-row single"><div class="fg"><label>Title *</label><input type="text" id="ef-title"></div></div>
       <div class="form-row"><div class="fg"><label>Date</label><input type="date" id="ef-date"></div><div class="fg"><label>Start Time</label><input type="time" id="ef-start"></div></div>
@@ -829,7 +844,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
       <div class="form-row single"><div class="fg"><label>Filter Cleaner</label><select id="sh-cleaner" onchange="genPreview()"><option value="">All Cleaners</option><option>Maria G.</option><option>James T.</option><option>Sandra K.</option><option>David R.</option></select></div></div>
       <div id="sh-preview" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.9rem;font-size:0.78rem;color:var(--text-muted);max-height:220px;overflow-y:auto;white-space:pre-wrap;line-height:1.7;font-family:monospace;"></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeShareModal()">Cancel</button><button class="btn btn-ghost btn-sm" onclick="emailSchedule()">📧 Email</button><button class="btn btn-primary" onclick="printSchedule()">🖨 Print</button></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeShareModal()">Cancel</button><button class="btn btn-ghost btn-sm" onclick="emailSchedule()"> Email</button><button class="btn btn-primary" onclick="printSchedule()"> Print</button></div>
   </div>
 </div>
 
@@ -839,7 +854,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
     <div class="modal-handle"></div>
     <div class="modal-header"><div class="modal-title">Add Follow-up</div><button class="modal-close" onclick="closeTaskModal()">✕</button></div>
     <div class="modal-body">
-      <div class="form-row"><div class="fg"><label>Action</label><select id="tf-action"><option value="Call">📞 Call</option><option value="Email">✉️ Email</option><option value="Quote">📋 Quote</option><option value="Callback">🔁 Callback</option></select></div><div class="fg"><label>Due Date</label><input type="date" id="tf-due"></div></div>
+      <div class="form-row"><div class="fg"><label>Action</label><select id="tf-action"><option value="Call"> Call</option><option value="Email">✉ Email</option><option value="Quote"> Quote</option><option value="Callback"> Callback</option></select></div><div class="fg"><label>Due Date</label><input type="date" id="tf-due"></div></div>
       <div class="form-row single"><div class="fg"><label>Note</label><input type="text" id="tf-note" placeholder="Reminder..."></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeTaskModal()">Cancel</button><button class="btn btn-primary" onclick="saveTaskModal()">Add Follow-up</button></div>
@@ -1069,8 +1084,16 @@ function primarySvc(c){if(!c.services||!c.services.length)return null;return c.s
 // GLOBAL TAB SWITCHING
 // ══════════════════════════════════════════════════════════════════
 let currentTab='contacts';
+function toggleSideNav(force){
+  const nav=document.getElementById('side-nav');
+  const bd=document.getElementById('nav-backdrop');
+  const open=typeof force==='boolean'?force:!nav.classList.contains('open');
+  nav.classList.toggle('open',open);
+  if(bd)bd.classList.toggle('show',open);
+}
 function switchTab(tab,el){
   currentTab=tab;
+  toggleSideNav(false);
   document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
@@ -1646,7 +1669,7 @@ function renderAgenda(){
     }
     cur=addDays(cur,1);
   }
-  if(!hasAny)wrap.innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">No upcoming events</div><div class="empty-sub">Add events to see them here.</div></div>';
+  if(!hasAny)wrap.innerHTML='<div class="empty"><div class="empty-title">No upcoming events</div><div class="empty-sub">Add events to see them here.</div></div>';
 }
 function openDaySheet(date){
   selectedDate=date;renderCalendar();
@@ -1775,8 +1798,8 @@ function getEvByKey(key){
 function openEventDetail(key){
   const ev=getEvByKey(key);if(!ev)return;
   document.getElementById('ed-title').textContent=ev.title||'Untitled';
-  const tpill=ev.type==='clean'?'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-gold);">🧹 Clean</span>':'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--amber-glow);color:var(--amber);border:1px solid rgba(232,131,58,0.3);">📋 Quote</span>';
-  const rpill=ev._recurring?'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-gold);">↻ Recurring</span>':'';
+  const tpill=ev.type==='clean'?'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-gold);"> Clean</span>':'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--amber-glow);color:var(--amber);border:1px solid rgba(232,131,58,0.3);"> Quote</span>';
+  const rpill=ev._recurring?'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:var(--gold-glow);color:var(--gold);border:1px solid var(--border-gold);"> Recurring</span>':'';
   const cpill=ev.completed?'<span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.12rem 0.45rem;border-radius:50px;background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25);">✓ Done</span>':'';
   document.getElementById('ed-pills').innerHTML=tpill+rpill+cpill;
   document.getElementById('ed-date').textContent=fmtDateFull(ev.date);
@@ -1888,8 +1911,8 @@ function genPreview(){
     if(ev.date!==lastDate){text+='\n'+fmtDateFull(ev.date).toUpperCase()+'\n';lastDate=ev.date;}
     const cls=(ev.cleaners&&ev.cleaners.length)?ev.cleaners.join(', '):(ev.cleaner||'');
     text+='  '+(ev.start?fmtTime(ev.start):'      ')+' — '+ev.title+(cls?' ('+cls+')':'')+'\n';
-    if(ev.address)text+='           📍 '+ev.address+'\n';
-    if(ev.notes)text+='           📝 '+ev.notes+'\n';
+    if(ev.address)text+='            '+ev.address+'\n';
+    if(ev.notes)text+='            '+ev.notes+'\n';
   });
   document.getElementById('sh-preview').textContent=text;
 }
@@ -1921,7 +1944,7 @@ function renderLeadList(){
     const sa=LM_STAGE_ORDER[a.stage||'New']??9,sb=LM_STAGE_ORDER[b.stage||'New']??9;
     return sa!==sb?sa-sb:(a.business||'').localeCompare(b.business||'');
   });
-  if(!rows.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎯</div><div class="empty-title">No leads</div><div class="empty-sub">New website leads and promoted prospects appear here.</div></div>';return;}
+  if(!rows.length){el.innerHTML='<div class="empty"><div class="empty-title">No leads</div><div class="empty-sub">New website leads and promoted prospects appear here.</div></div>';return;}
   el.innerHTML=rows.map(c=>'<div class="task-hist-item" style="cursor:pointer;" onclick="openDrawer(\''+c.id+'\')">'+
     '<div style="flex:1;min-width:0;"><div style="font-size:0.9rem;font-weight:700;color:var(--text);">'+c.business+'</div>'+(c.contact?'<div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.15rem;">'+c.contact+'</div>':'')+'</div>'+
     stagePill(c.stage||'New')+'</div>').join('');
@@ -1933,7 +1956,7 @@ function renderLeadAgenda(){
     (Array.isArray(c.tasks)?c.tasks:[]).forEach(t=>{ if(t.done)return; items.push({c,t,status:taskStatus(t)}); });
   });
   items.sort((a,b)=>(a.t.due||'9999').localeCompare(b.t.due||'9999'));
-  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">No follow-ups</div><div class="empty-sub">Add follow-ups from a lead\'s profile.</div></div>';return;}
+  if(!items.length){el.innerHTML='<div class="empty"><div class="empty-title">No follow-ups</div><div class="empty-sub">Add follow-ups from a lead\'s profile.</div></div>';return;}
   const groups={Overdue:[],Today:[],Upcoming:[]};
   items.forEach(it=>{ if(it.status==='overdue')groups.Overdue.push(it); else if(it.status==='today')groups.Today.push(it); else groups.Upcoming.push(it); });
   const apClass={Call:'ap-call',Email:'ap-email',Quote:'ap-quote',Callback:'ap-callback'};
@@ -2004,7 +2027,7 @@ function renderProspects(){
   const list=document.getElementById('prospect-list');
   let filtered=prospects;
   if(prospectFilter!=='all')filtered=prospects.filter(p=>p.service&&p.service.toLowerCase().includes(prospectFilter.toLowerCase()));
-  if(!filtered.length){list.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No prospects yet</div><div class="empty-sub">Add businesses to your call list.</div></div>';return;}
+  if(!filtered.length){list.innerHTML='<div class="empty"><div class="empty-title">No prospects yet</div><div class="empty-sub">Add businesses to your call list.</div></div>';return;}
   const psMap={new:'ps-new',called:'ps-called',interested:'ps-interested','not interested':'ps-no'};
   const cardCls={called:'called',interested:'interested','not interested':'notinterested'};
   list.innerHTML=filtered.map(p=>{
@@ -2213,7 +2236,7 @@ function renderCleanHistory(body){
     '<div class="rpt-stat"><div class="rpt-stat-val amber">'+pending.length+'</div><div class="rpt-stat-label">Needs Log</div></div>'+
     '<div class="rpt-stat"><div class="rpt-stat-val" style="color:var(--text-muted);">'+upcoming.length+'</div><div class="rpt-stat-label">Upcoming</div></div>'+
     '</div>';
-  if(!evs.length){html+='<div class="empty"><div class="empty-icon">🧹</div><div class="empty-title">No cleans in this range</div><div class="empty-sub">Adjust the date filters above.</div></div>';body.innerHTML=html;return;}
+  if(!evs.length){html+='<div class="empty"><div class="empty-title">No cleans in this range</div><div class="empty-sub">Adjust the date filters above.</div></div>';body.innerHTML=html;return;}
   const sorted=[...evs].sort((a,b)=>b.date.localeCompare(a.date));
   // group by status
   const groups=[{label:'Needs Log',items:pending,cls:'pending'},{label:'Completed',items:done,cls:'done'},{label:'Upcoming',items:upcoming,cls:'upcoming'}];
@@ -2229,7 +2252,7 @@ function renderCleanHistory(body){
         '<div class="cr-top"><span class="cr-title">'+(c?c.business:ev.title)+'</span>'+
         '<span class="complete-badge '+(ev.completed?'cb-done':ev.date<=todayStr()?'cb-pending':'cb-upcoming')+'">'+(ev.completed?'✓ Done':ev.date<=todayStr()?'Log It':'Upcoming')+'</span></div>'+
         '<div class="cr-meta">'+[fmtDate(ev.date),cls,ev.address].filter(Boolean).join(' · ')+'</div>'+
-        (ov.completedNotes?'<div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.2rem;">📝 '+ov.completedNotes+'</div>':'')+
+        (ov.completedNotes?'<div style="font-size:0.72rem;color:var(--text-dim);margin-top:0.2rem;"> '+ov.completedNotes+'</div>':'')+
         '</div></div>';
     });
   });
@@ -2250,7 +2273,7 @@ function renderByClient(body){
     '<div class="rpt-stat"><div class="rpt-stat-val gold">'+rows.length+'</div><div class="rpt-stat-label">Clients Served</div></div>'+
     '<div class="rpt-stat"><div class="rpt-stat-val green">'+evs.filter(e=>e.completed).length+'</div><div class="rpt-stat-label">Completed Cleans</div></div>'+
     '</div>';
-  if(!rows.length){html+='<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">No data</div><div class="empty-sub">No cleans found in this range.</div></div>';body.innerHTML=html;return;}
+  if(!rows.length){html+='<div class="empty"><div class="empty-title">No data</div><div class="empty-sub">No cleans found in this range.</div></div>';body.innerHTML=html;return;}
   html+='<div class="rpt-section-hdr">Client Summary</div>';
   rows.forEach(r=>{
     html+='<div class="rpt-row">'+
@@ -2279,7 +2302,7 @@ function renderByCleaners(body){
     '<div class="rpt-stat"><div class="rpt-stat-val gold">'+rows.length+'</div><div class="rpt-stat-label">Active Cleaners</div></div>'+
     '<div class="rpt-stat"><div class="rpt-stat-val green">'+rows.reduce((a,r)=>a+r.done,0)+'</div><div class="rpt-stat-label">Logged Cleans</div></div>'+
     '</div>';
-  if(!rows.length){html+='<div class="empty"><div class="empty-icon">🧹</div><div class="empty-title">No data</div></div>';body.innerHTML=html;return;}
+  if(!rows.length){html+='<div class="empty"><div class="empty-title">No data</div></div>';body.innerHTML=html;return;}
   html+='<div class="rpt-section-hdr">Cleaner Summary</div>';
   rows.forEach(r=>{
     html+='<div class="rpt-row">'+
@@ -2414,7 +2437,7 @@ function staffFilter(f,el){staffFilterState=f;document.querySelectorAll('.sf-btn
 function renderStaff(){
   const container=document.getElementById('staff-list');if(!container)return;
   let filtered=staffFilterState==='all'?[...staff]:staff.filter(s=>s.status===staffFilterState);
-  if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">👷</div><div class="empty-title">No staff yet</div><div class="empty-sub">Add your first team member.</div></div>';return;}
+  if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-title">No staff yet</div><div class="empty-sub">Add your first team member.</div></div>';return;}
   const DAYS=['S','M','T','W','T','F','S'];
   container.innerHTML=filtered.map(s=>{
     const initials=(s.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
@@ -2784,7 +2807,7 @@ async function signOut(){
   </div>
   <div class="d-tab-content" id="sdtab-agreement">
     <div id="sd-agreement-status" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.5rem;text-align:center;">
-      <div style="font-size:2rem;margin-bottom:0.75rem;">📄</div>
+      <div style="font-size:2rem;margin-bottom:0.75rem;"></div>
       <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1rem;">No contractor agreement on file.</p>
       <button class="btn btn-primary btn-sm" onclick="openStaffContract()">Generate Agreement</button>
     </div>
@@ -2935,12 +2958,12 @@ async function renderTimesheets(){
   let rows;
   try{ rows=await sbFetch(path); }catch(e){ rows=null; }
   if(rows===null){
-    el.innerHTML='<div class="empty"><div class="empty-icon">⏱️</div><div class="empty-title">Time clock not connected yet</div><div class="empty-sub">These tables get created when the Supabase schema is applied. Nothing to show until a cleaner clocks in.</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-title">Time clock not connected yet</div><div class="empty-sub">These tables get created when the Supabase schema is applied. Nothing to show until a cleaner clocks in.</div></div>';
     return;
   }
   if(!rows.length){
-    const msg=tsFilterState==='open'?'No one is clocked in right now.':tsFilterState==='review'?'Nothing needs review. All shifts are clean. ✅':'No time entries yet.';
-    el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">All clear</div><div class="empty-sub">'+msg+'</div></div>';
+    const msg=tsFilterState==='open'?'No one is clocked in right now.':tsFilterState==='review'?'Nothing needs review. All shifts are clean. ':'No time entries yet.';
+    el.innerHTML='<div class="empty"><div class="empty-title">All clear</div><div class="empty-sub">'+msg+'</div></div>';
     return;
   }
 
