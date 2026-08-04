@@ -79,10 +79,18 @@ create table if not exists public.deleted_events (
 );
 
 -- ── leads ──────────────────────────────────────────────────
+-- Carries BOTH shapes: the 4K-derived CRM columns (business/contact/notes)
+-- AND the website form columns (first_name/last_name/message) so the public
+-- contact form on reli-site inserts cleanly. See CLAUDE.md "leads alignment".
 create table if not exists public.leads (
-  id          text primary key,
+  -- text id to match the CRM's client-generated ids, but WITH a default so the
+  -- public website form (which sends no id) can insert.
+  id          text primary key default (gen_random_uuid()::text),
   business    text,
   contact     text,
+  first_name  text,
+  last_name   text,
+  message     text,
   phone       text,
   email       text,
   service     text,
