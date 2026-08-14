@@ -421,6 +421,30 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:50px;}
+/* ── POS / Sales ── */
+.pos-banner{background:var(--gold-glow);border:1px solid var(--border-gold);color:var(--gold);border-radius:var(--radius-sm);padding:0.6rem 0.9rem;font-size:0.82rem;font-weight:700;margin-bottom:0.7rem;cursor:pointer;}
+.pos-list{display:flex;flex-direction:column;gap:0.5rem;}
+.pos-row{display:flex;justify-content:space-between;align-items:center;gap:0.8rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 0.9rem;cursor:pointer;transition:border-color 0.15s;}
+.pos-row:hover{border-color:var(--border-gold);}
+.pos-row-title{font-weight:600;font-size:0.9rem;}
+.pos-row-sub{font-size:0.75rem;color:var(--text-muted);}
+.pos-row-amt{font-weight:700;font-size:0.95rem;}
+.pos-chip{display:inline-block;font-size:0.64rem;font-weight:800;letter-spacing:0.06em;padding:0.14rem 0.5rem;border-radius:50px;border:1px solid;}
+.pos-chip-paid{color:var(--green);border-color:var(--green);}
+.pos-chip-unpaid{color:var(--gold);border-color:var(--border-gold);}
+.pos-chip-closed{color:var(--text-dim);border-color:var(--border);}
+.pos-inv{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;}
+.pos-sec{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-dim);margin:1rem 0 0.35rem;border-bottom:1px solid var(--border);padding-bottom:0.3rem;}
+.pos-line{display:flex;justify-content:space-between;gap:1rem;padding:0.4rem 0;font-size:0.88rem;border-bottom:1px dashed var(--border);}
+.pos-line:last-child{border-bottom:none;}
+.pos-line-tot{font-weight:800;border-bottom:none;}
+.pos-totals{margin-top:0.8rem;background:var(--charcoal-mid);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.5rem 0.8rem;}
+.pos-newline{background:var(--charcoal-mid);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:0.5rem;}
+.pos-newline input[type=text],.pos-newline input[type=number],.pos-newline select{margin-bottom:0.4rem;}
+.pos-newline-row{display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;}
+.pos-newline-row input,.pos-newline-row select{margin-bottom:0!important;}
+.pos-taxlab{display:flex;align-items:center;gap:0.3rem;font-size:0.78rem;color:var(--text-muted);white-space:nowrap;}
+
 </style>
 </head>
 <body>
@@ -456,6 +480,7 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
   <div class="main-tab" onclick="switchTab('schedule',this)">Schedule</div>
   <div class="main-tab" onclick="switchTab('leadmgr',this)">Lead Manager</div>
   <div class="main-tab" onclick="switchTab('outreach',this)">Outreach</div>
+  <div class="main-tab" onclick="switchTab('sales',this)">Sales</div>
   <div class="main-tab" onclick="switchTab('timesheets',this)">Timesheets</div>
   <div class="main-tab" onclick="switchTab('reports',this)">Reports</div>
   <div class="main-tab" onclick="switchTab('staff',this)">Staff</div>
@@ -618,6 +643,78 @@ body{font-family:var(--font);background:var(--charcoal);color:var(--text);min-he
 </div>
 
 <!-- TIMESHEETS TAB -->
+<!-- SALES TAB (POS) -->
+<div class="tab-content" id="tab-sales">
+  <div id="pos-unpaid-banner" class="pos-banner" style="display:none;" onclick="posSetFilter('unpaid')"></div>
+  <div class="staff-toolbar">
+    <div class="staff-filter">
+      <button class="sf-btn active" id="posf-month" onclick="posSetFilter('month')">This Month</button>
+      <button class="sf-btn" id="posf-unpaid" onclick="posSetFilter('unpaid')">Unpaid (All Time)</button>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="openSaleModal()" style="margin-left:auto;">+ New Sale</button>
+  </div>
+  <div id="pos-body"></div>
+</div>
+
+<!-- NEW SALE MODAL -->
+<div class="modal-overlay" id="sale-modal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">New Sale</div><button class="modal-close" onclick="closeSaleModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>Client</label>
+        <select id="sale-contact"></select>
+      </div>
+      <div style="margin:0.9rem 0 0.4rem;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);">Line Items</div>
+      <div id="sale-lines"></div>
+      <button class="btn btn-ghost btn-sm" onclick="posAddLine()" style="margin-top:0.4rem;">+ Add Line</button>
+      <div class="fg" style="margin-top:0.9rem;max-width:200px;"><label>Discount ($)</label>
+        <input type="text" id="sale-discount" inputmode="decimal" placeholder="0.00" oninput="posRecalc()">
+      </div>
+      <div class="pos-totals" id="sale-totals"></div>
+      <div class="fg" style="margin-top:0.6rem;"><label>Notes (internal)</label>
+        <input type="text" id="sale-notes" placeholder="Optional">
+      </div>
+      <p id="sale-error" style="display:none;color:var(--red);font-size:0.82rem;margin-top:0.6rem;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSaleModal()">Cancel</button>
+      <button class="btn btn-primary" id="sale-submit" onclick="posSubmitSale()">Create Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="modal-overlay" id="pospay-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Record Payment</div><button class="modal-close" onclick="closePosPayModal()">✕</button></div>
+    <div class="modal-body">
+      <div id="pospay-info" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem;margin-bottom:0.9rem;font-size:0.85rem;line-height:1.5;"></div>
+      <div class="fg"><label>Amount ($)</label>
+        <input type="text" id="pospay-amount" inputmode="decimal">
+      </div>
+      <div class="fg"><label>Method</label>
+        <select id="pospay-method">
+          <option value="ach">ACH (recorded)</option>
+          <option value="check">Check</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Note</label>
+        <input type="text" id="pospay-note" placeholder="Check #, reference, reason">
+      </div>
+      <p style="font-size:0.74rem;color:var(--text-muted);margin:0.5rem 0 0;">This RECORDS a payment received outside the system. It does not charge anyone. Refunds are recorded as negative amounts.</p>
+      <p style="font-size:0.74rem;margin:0.45rem 0 0;"><a href="#" onclick="posShowCardOverride(event)" style="color:var(--text-dim);">Emergency card override</a></p>
+      <p id="pospay-error" style="display:none;color:var(--red);font-size:0.82rem;margin-top:0.6rem;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePosPayModal()">Cancel</button>
+      <button class="btn btn-primary" id="pospay-submit" onclick="posSubmitPayment()">Record Payment</button>
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="tab-timesheets">
   <div class="staff-toolbar">
     <div class="staff-filter">
@@ -1098,7 +1195,7 @@ function switchTab(tab,el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
   const tc=document.getElementById('tab-'+tab);if(tc)tc.classList.add('active');
-  const labels={contacts:'+ Contact',schedule:'+ Event',leads:'+ Lead',outreach:'+ Prospect',staff:'+ Staff'};
+  const labels={contacts:'+ Contact',schedule:'+ Event',leads:'+ Lead',outreach:'+ Prospect',staff:'+ Staff',sales:'+ Sale'};
   const lbl=labels[tab]||'';
   const noFab=tab==='reports'||tab==='staff'||tab==='leadmgr'||tab==='timesheets';
   document.getElementById('fab').style.display=noFab?'none':'flex';
@@ -1111,6 +1208,7 @@ function switchTab(tab,el){
   else if(tab==='leadmgr')renderLeadManager();
   else if(tab==='reports'){initReports();renderReports();}
   else if(tab==='staff')renderStaff();
+  else if(tab==='sales')renderSales();
   else if(tab==='timesheets')renderTimesheets();
   else renderProspects();
 }
@@ -1118,6 +1216,7 @@ function topbarAdd(){
   if(currentTab==='contacts')openContactModal(null);
   else if(currentTab==='schedule')openEventModal(null);
   else if(currentTab==='staff')openStaffModal(null);
+  else if(currentTab==='sales')openSaleModal();
   else openProspectModal(null);
 }
 document.getElementById('fab').onclick=topbarAdd;
@@ -3047,5 +3146,268 @@ async function tsApprove(id){
   renderTimesheets();
 }
 </script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// POS / SALES
+// Money is integer cents; dollars only at display boundaries.
+// ══════════════════════════════════════════════════════════════
+const POS={cats:[],sales:[],filter:'month',unpaid:{count:0,cents:0},current:null};
+
+function posEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function posC(str){const n=parseFloat(String(str).replace(/[^0-9.\-]/g,''));return isNaN(n)?0:Math.round(n*100);}
+function posFmt(c){const neg=c<0?'-':'';const a=Math.abs(c);return neg+'$'+(a/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function posContactName(id){const c=contacts.find(x=>x.id===id);return c?(c.business||c.contact||'Client'):'No client';}
+
+// KEEP IN SYNC with computeTotals() in supabase/functions/pos-sale/index.ts.
+// subtotal = sum(qty*unit); discount caps at subtotal; tax on DISCOUNTED
+// taxable base; total = subtotal - discount + tax.
+function computeTotals(lines,discountCents,taxRateBps){
+  let subtotal=0,taxableSubtotal=0;
+  for(const l of lines){const lt=l.qty*l.unit_price_cents;subtotal+=lt;if(l.taxable)taxableSubtotal+=lt;}
+  const discount=Math.min(Math.max(0,Math.round(discountCents||0)),subtotal);
+  const taxBase=Math.max(taxableSubtotal-discount,0);
+  const tax=Math.round(taxBase*taxRateBps/10000);
+  return {subtotal,discount,tax,total:subtotal-discount+tax};
+}
+function posCatKind(label){
+  if(label==='Recurring Contracts')return 'recurring';
+  if(label==='One-Time Jobs')return 'one_time';
+  return 'other';
+}
+
+async function posLoadCats(){
+  if(POS.cats.length)return;
+  const r=await sbFetch('pos_income_categories?select=*&active=eq.true&order=sort.asc');
+  POS.cats=r||[];
+}
+
+function posSetFilter(f,skipRender){
+  POS.filter=f;
+  document.getElementById('posf-month').classList.toggle('active',f==='month');
+  document.getElementById('posf-unpaid').classList.toggle('active',f==='unpaid');
+  if(!skipRender)renderSales();
+}
+
+async function renderSales(){
+  POS.current=null;
+  await posLoadCats();
+  const body=document.getElementById('pos-body');
+  body.innerHTML='<div class="empty"><div class="empty-title">Loading...</div></div>';
+  const monthStart=ds(_today.getFullYear(),_today.getMonth(),1);
+  const q=POS.filter==='unpaid'
+    ?'pos_sales?select=*&status=eq.unpaid&order=created_at.desc'
+    :'pos_sales?select=*&sale_date=gte.'+monthStart+'&order=created_at.desc';
+  const sales=await sbFetch(q)||[];
+  POS.sales=sales;
+  // Unpaid banner: all-time unpaid minus partial payments
+  const un=await sbFetch('pos_sales?select=id,total_cents&status=eq.unpaid')||[];
+  let owed=0;
+  if(un.length){
+    const ids=un.map(s=>s.id).join(',');
+    const pays=await sbFetch('pos_payments?select=sale_id,amount_cents&sale_id=in.('+ids+')')||[];
+    const paidBy={};pays.forEach(p=>{paidBy[p.sale_id]=(paidBy[p.sale_id]||0)+p.amount_cents;});
+    un.forEach(s=>{owed+=Math.max(s.total_cents-(paidBy[s.id]||0),0);});
+  }
+  POS.unpaid={count:un.length,cents:owed};
+  const ban=document.getElementById('pos-unpaid-banner');
+  if(un.length){ban.style.display='block';ban.textContent=un.length+' unpaid invoice'+(un.length===1?'':'s')+' · '+posFmt(owed)+' owed';}
+  else ban.style.display='none';
+
+  if(!sales.length){
+    body.innerHTML='<div class="empty"><div class="empty-title">'+(POS.filter==='unpaid'?'Nothing unpaid':'No sales this month')+'</div><div class="empty-sub">Create a sale with + New Sale. Every sale is an invoice, paid or not.</div></div>';
+    return;
+  }
+  body.innerHTML='<div class="pos-list">'+sales.map(s=>{
+    const chip=s.status==='paid'?'<span class="pos-chip pos-chip-paid">PAID</span>'
+      :s.status==='closed'?'<span class="pos-chip pos-chip-closed">CLOSED</span>'
+      :'<span class="pos-chip pos-chip-unpaid">UNPAID</span>';
+    return '<div class="pos-row" onclick="openInvoice(\''+s.id+'\')">'
+      +'<div><div class="pos-row-title">INV-'+s.invoice_no+' · '+posEsc(posContactName(s.contact_id))+'</div>'
+      +'<div class="pos-row-sub">'+fmtDate(s.sale_date)+(s.payment_method?' · '+posEsc(s.payment_method):'')+'</div></div>'
+      +'<div style="text-align:right;"><div class="pos-row-amt">'+posFmt(s.total_cents)+'</div>'+chip+'</div></div>';
+  }).join('')+'</div>';
+}
+
+async function openInvoice(id){
+  const body=document.getElementById('pos-body');
+  body.innerHTML='<div class="empty"><div class="empty-title">Loading...</div></div>';
+  const rows=await sbFetch('pos_sales?select=*&id=eq.'+id);
+  const s=rows&&rows[0];
+  if(!s){renderSales();return;}
+  const lines=await sbFetch('pos_sale_lines?select=*&sale_id=eq.'+id+'&order=created_at.asc')||[];
+  const pays=await sbFetch('pos_payments?select=*&sale_id=eq.'+id+'&order=received_at.asc')||[];
+  POS.current={sale:s,lines:lines,pays:pays};
+  const paid=pays.reduce((a,p)=>a+p.amount_cents,0);
+  const balance=Math.max(s.total_cents-paid,0);
+  const chip=s.status==='paid'?'<span class="pos-chip pos-chip-paid">PAID</span>'
+    :s.status==='closed'?'<span class="pos-chip pos-chip-closed">CLOSED (waived)</span>'
+    :'<span class="pos-chip pos-chip-unpaid">UNPAID</span>';
+  const canDelete=s.status==='unpaid'&&pays.length===0;
+  let h='<div class="pos-inv">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">';
+  h+='<div><a href="#" onclick="renderSales();return false;" style="font-size:0.78rem;color:var(--text-dim);">&larr; All transactions</a>';
+  h+='<div style="font-family:var(--font-display);font-size:1.5rem;letter-spacing:0.04em;margin-top:0.3rem;">INV-'+s.invoice_no+' '+chip+'</div>';
+  h+='<div style="font-size:0.85rem;color:var(--text-muted);">'+posEsc(posContactName(s.contact_id))+' · '+fmtDate(s.sale_date)+'</div></div>';
+  h+='<div style="text-align:right;"><div style="font-family:var(--font-display);font-size:1.6rem;">'+posFmt(s.total_cents)+'</div>';
+  if(s.status==='unpaid'&&paid>0)h+='<div style="font-size:0.8rem;color:var(--gold);">'+posFmt(paid)+' received · '+posFmt(balance)+' due</div>';
+  h+='</div></div>';
+  h+='<div class="pos-sec">Lines</div>';
+  h+=lines.map(l=>'<div class="pos-line"><div>'+posEsc(l.description)
+    +'<span class="pos-row-sub" style="display:block;">'+posEsc(l.income_category)+(l.taxable?'':' · non-taxable')+(l.qty>1?' · '+l.qty+' x '+posFmt(l.unit_price_cents):'')+'</span></div>'
+    +'<div>'+posFmt(l.line_total_cents)+'</div></div>').join('');
+  h+='<div class="pos-line pos-line-tot"><div>Subtotal</div><div>'+posFmt(s.subtotal_cents)+'</div></div>';
+  if(s.discount_cents>0)h+='<div class="pos-line"><div>Discount</div><div>-'+posFmt(s.discount_cents)+'</div></div>';
+  h+='<div class="pos-line"><div>Tax ('+(s.tax_rate_bps/100).toFixed(2)+'%)</div><div>'+posFmt(s.tax_cents)+'</div></div>';
+  h+='<div class="pos-line pos-line-tot"><div>Total</div><div>'+posFmt(s.total_cents)+'</div></div>';
+  h+='<div class="pos-sec">Payments</div>';
+  h+=pays.length?pays.map(p=>'<div class="pos-line"><div>'+posEsc(p.method)+(p.note?' · '+posEsc(p.note):'')
+    +'<span class="pos-row-sub" style="display:block;">'+new Date(p.received_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+'</span></div>'
+    +'<div>'+posFmt(p.amount_cents)+'</div></div>').join('')
+    :'<div style="font-size:0.83rem;color:var(--text-muted);padding:0.4rem 0;">No payments recorded.</div>';
+  h+='<div style="display:flex;gap:0.45rem;flex-wrap:wrap;margin-top:1rem;">';
+  if(s.status!=='closed')h+='<button class="btn btn-primary btn-sm" onclick="openPosPayModal()">Record Payment</button>';
+  if(s.status==='unpaid')h+='<button class="btn btn-ghost btn-sm" onclick="posCloseInvoice()">Close (waive balance)</button>';
+  if(canDelete)h+='<button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="posDeleteInvoice()">Delete</button>';
+  h+='</div>';
+  if(s.notes)h+='<div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text-muted);">Note: '+posEsc(s.notes)+'</div>';
+  h+='</div>';
+  body.innerHTML=h;
+}
+
+// ── New sale modal ──
+let saleLines=[];
+function openSaleModal(){
+  saleLines=[];
+  const sel=document.getElementById('sale-contact');
+  const sorted=[...contacts].sort((a,b)=>String(a.business||'').localeCompare(String(b.business||'')));
+  sel.innerHTML='<option value="">No client (walk-in / internal)</option>'+sorted.map(c=>'<option value="'+posEsc(c.id)+'">'+posEsc(c.business||c.contact||'Unnamed')+'</option>').join('');
+  document.getElementById('sale-discount').value='';
+  document.getElementById('sale-notes').value='';
+  document.getElementById('sale-error').style.display='none';
+  posAddLine();
+  document.getElementById('sale-modal').classList.add('open');
+  posRecalc();
+}
+function closeSaleModal(){document.getElementById('sale-modal').classList.remove('open');}
+function posAddLine(){
+  saleLines.push({description:'',qty:1,price:'',cat:POS.cats.length?POS.cats[0].label:'Other',taxable:true});
+  posRenderLines();
+}
+function posRmLine(i){saleLines.splice(i,1);if(!saleLines.length)posAddLine();posRenderLines();}
+function posRenderLines(){
+  const el=document.getElementById('sale-lines');
+  el.innerHTML=saleLines.map((l,i)=>'<div class="pos-newline">'
+    +'<input type="text" placeholder="Description (e.g. Weekly office cleaning - Sept)" value="'+posEsc(l.description)+'" oninput="saleLines['+i+'].description=this.value">'
+    +'<div class="pos-newline-row">'
+    +'<input type="number" min="1" max="999" value="'+l.qty+'" title="Qty" style="width:64px;" oninput="saleLines['+i+'].qty=parseInt(this.value)||1;posRecalc()">'
+    +'<input type="text" inputmode="decimal" placeholder="0.00" value="'+posEsc(l.price)+'" title="Unit price $" style="width:100px;" oninput="saleLines['+i+'].price=this.value;posRecalc()">'
+    +'<select onchange="saleLines['+i+'].cat=this.value" style="flex:1;min-width:130px;">'+POS.cats.map(c=>'<option'+(c.label===l.cat?' selected':'')+'>'+posEsc(c.label)+'</option>').join('')+'</select>'
+    +'<label class="pos-taxlab"><input type="checkbox" '+(l.taxable?'checked':'')+' onchange="saleLines['+i+'].taxable=this.checked;posRecalc()"> Tax</label>'
+    +'<button class="btn btn-ghost btn-sm" onclick="posRmLine('+i+')" title="Remove">&times;</button>'
+    +'</div></div>').join('');
+}
+function posLinesPayload(){
+  return saleLines
+    .filter(l=>l.description.trim()||posC(l.price)>0)
+    .map(l=>({kind:posCatKind(l.cat),description:l.description.trim(),qty:l.qty||1,unit_price_cents:posC(l.price),taxable:!!l.taxable,income_category:l.cat}));
+}
+function posRecalc(){
+  const t=computeTotals(posLinesPayload(),posC(document.getElementById('sale-discount').value),825);
+  document.getElementById('sale-totals').innerHTML=
+    '<div class="pos-line"><div>Subtotal</div><div>'+posFmt(t.subtotal)+'</div></div>'
+    +(t.discount>0?'<div class="pos-line"><div>Discount</div><div>-'+posFmt(t.discount)+'</div></div>':'')
+    +'<div class="pos-line"><div>Tax (8.25%)</div><div>'+posFmt(t.tax)+'</div></div>'
+    +'<div class="pos-line pos-line-tot"><div>Total</div><div>'+posFmt(t.total)+'</div></div>';
+  return t;
+}
+async function posSubmitSale(){
+  const err=document.getElementById('sale-error');err.style.display='none';
+  const lines=posLinesPayload();
+  if(!lines.length){err.textContent='Add at least one line with a description.';err.style.display='block';return;}
+  if(lines.some(l=>!l.description)){err.textContent='Every line needs a description.';err.style.display='block';return;}
+  const t=posRecalc();
+  const btn=document.getElementById('sale-submit');btn.disabled=true;btn.textContent='Creating...';
+  try{
+    const resp=await fetch(SB_URL+'/functions/v1/pos-sale',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+(authToken||SB_KEY),'Content-Type':'application/json'},
+      body:JSON.stringify({
+        sale_id:crypto.randomUUID(),
+        contact_id:document.getElementById('sale-contact').value||null,
+        lines:lines,
+        discount_cents:posC(document.getElementById('sale-discount').value),
+        tax_rate_bps:825,
+        expected_total_cents:t.total,
+        notes:document.getElementById('sale-notes').value.trim()
+      })
+    });
+    const data=await resp.json().catch(()=>({}));
+    if(!resp.ok)throw new Error(data.error||('Server '+resp.status));
+    closeSaleModal();
+    posSetFilter('month',true);
+    openInvoice(data.sale.id);   // land directly on the created invoice
+  }catch(e){
+    err.textContent=e.message;err.style.display='block';
+  }finally{btn.disabled=false;btn.textContent='Create Invoice';}
+}
+
+// ── Record payment ──
+function openPosPayModal(){
+  const s=POS.current.sale;
+  const paid=POS.current.pays.reduce((a,p)=>a+p.amount_cents,0);
+  const balance=Math.max(s.total_cents-paid,0);
+  document.getElementById('pospay-info').innerHTML='<b>INV-'+s.invoice_no+'</b> · '+posEsc(posContactName(s.contact_id))+'<br>Total '+posFmt(s.total_cents)+' · Balance <b>'+posFmt(balance)+'</b>';
+  document.getElementById('pospay-amount').value=(balance/100).toFixed(2);
+  document.getElementById('pospay-note').value='';
+  document.getElementById('pospay-error').style.display='none';
+  const m=document.getElementById('pospay-method');
+  if(m.querySelector('option[value="card_override"]'))m.querySelector('option[value="card_override"]').remove();
+  m.value='ach';
+  document.getElementById('pospay-modal').classList.add('open');
+}
+function closePosPayModal(){document.getElementById('pospay-modal').classList.remove('open');}
+function posShowCardOverride(e){
+  e.preventDefault();
+  const m=document.getElementById('pospay-method');
+  if(!m.querySelector('option[value="card_override"]')){
+    const o=document.createElement('option');o.value='card_override';o.textContent='Card (EMERGENCY OVERRIDE)';m.appendChild(o);
+  }
+  m.value='card_override';
+  document.getElementById('pospay-error').textContent='Card is an emergency backdoor only, not a normal RELI tender. This records that a card was used elsewhere.';
+  document.getElementById('pospay-error').style.display='block';
+}
+async function posSubmitPayment(){
+  const err=document.getElementById('pospay-error');err.style.display='none';
+  const cents=posC(document.getElementById('pospay-amount').value);
+  if(cents===0){err.textContent='Amount cannot be zero. Use a negative amount for a refund.';err.style.display='block';return;}
+  const btn=document.getElementById('pospay-submit');btn.disabled=true;btn.textContent='Recording...';
+  try{
+    const r=await sbFetch('pos_payments',{method:'POST',body:JSON.stringify({
+      sale_id:POS.current.sale.id,
+      amount_cents:cents,
+      method:document.getElementById('pospay-method').value,
+      note:document.getElementById('pospay-note').value.trim(),
+      recorded_by:(currentUser&&currentUser.id)||null
+    })});
+    if(!r)throw new Error('Save failed. Check connection and try again.');
+    closePosPayModal();
+    openInvoice(POS.current.sale.id);
+  }catch(e){err.textContent=e.message;err.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='Record Payment';}
+}
+
+async function posCloseInvoice(){
+  if(!confirm('Close INV-'+POS.current.sale.invoice_no+' and waive the remaining balance? Closed is NOT paid; it means you are writing the balance off.'))return;
+  await sbFetch('pos_sales?id=eq.'+POS.current.sale.id,{method:'PATCH',body:JSON.stringify({status:'closed'})});
+  openInvoice(POS.current.sale.id);
+}
+async function posDeleteInvoice(){
+  const s=POS.current.sale;
+  if(!confirm('Delete INV-'+s.invoice_no+'? Only possible because it is unpaid with no payments. This cannot be undone.'))return;
+  await sbFetch('pos_sales?id=eq.'+s.id,{method:'DELETE',prefer:'return=minimal'});
+  renderSales();
+}
+</script>
+
 </body>
 </html>
